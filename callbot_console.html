@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CallBot Console — Browser Voice Call Simulator</title>
+  <title>CallBot Console — Allstate Rate-Drop Voice Call Simulator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -68,8 +68,8 @@
   <!-- Main Application Wrapper -->
   <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5">
 
-    <!-- Top Call Status Bar -->
-    <header class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+    <!-- 1. Top Call Status Bar -->
+    <header class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <!-- Brand + State Badge + Timer -->
         <div class="flex flex-wrap items-center gap-3 sm:gap-4">
@@ -90,10 +90,10 @@
               </span>
               <span id="engineModePill" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">
                 <span id="engineModeDot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                <span id="engineModeLabel">Built-In Multi-Topic Engine</span>
+                <span id="engineModeLabel">Built-In Rate-Drop &amp; Transfer Engine</span>
               </span>
             </div>
-            <p class="text-xs text-slate-400 mt-0.5">Browser Voice Call Simulator • Web Speech API, Confidence Modes &amp; Optional Live AI</p>
+            <p class="text-xs text-slate-400 mt-0.5">Allstate Car &amp; Home Rate-Drop Outreach • Live Handoff on Agreement</p>
           </div>
 
           <!-- Call Timer -->
@@ -143,9 +143,32 @@
         </div>
       </div>
 
-      <!-- Browser Capability & Status Banner -->
-      <div id="capabilityNotice" class="mt-4 pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-400">
-        <div id="apiSupportSummary" class="flex flex-wrap items-center gap-2">
+      <!-- Live Transfer Target Bar + Transfer Now Override -->
+      <div class="pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/25 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 14 20 9 15 4"></polyline>
+              <path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
+            </svg>
+            <span>Live Transfer Target:</span>
+            <strong id="headerTransferTarget" class="font-mono text-amber-200">Your Live Line / Ext. 101</strong>
+          </span>
+          <span class="text-slate-400">Auto-transfers when caller says yes, ok, alright, sure, or any configured trigger.</span>
+        </div>
+
+        <button id="transferNowBtn" type="button" disabled class="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:pointer-events-none text-slate-950 transition shadow-sm shrink-0 cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 14 20 9 15 4"></polyline>
+            <path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
+          </svg>
+          <span>Transfer Now</span>
+        </button>
+      </div>
+
+      <!-- Browser Capability Status -->
+      <div class="pt-2.5 border-t border-slate-800/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-400">
+        <div class="flex flex-wrap items-center gap-2">
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800/90 text-slate-300">
             <span id="ttsStatusDot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
             Speech Synthesis: <strong id="ttsSupportText" class="font-medium">Checking...</strong>
@@ -155,96 +178,120 @@
             Speech Recognition: <strong id="sttSupportText" class="font-medium">Checking...</strong>
           </span>
         </div>
-        <span class="text-slate-400">Works zero-config on any topic—or toggle Live AI for LLM responses with automatic fallback.</span>
+        <span class="text-slate-400">Zero API key needed out of the box—or enable Live AI in AI Settings.</span>
       </div>
     </header>
+
+    <!-- Live Transfer Banner (Visible when Transferring or Transferred) -->
+    <div id="liveTransferBanner" class="hidden rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-slate-900 p-4 shadow-lg">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="flex items-start sm:items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 14 20 9 15 4"></polyline>
+              <path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span id="transferBannerTitle" class="text-sm font-bold text-amber-200">Live Call Transfer Active</span>
+              <span id="transferBannerPhrase" class="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-900/90 text-emerald-300 border border-emerald-500/30">Trigger: "ok"</span>
+            </div>
+            <p id="transferBannerDetail" class="text-xs text-slate-300 mt-0.5">Connecting caller to Your Live Line / Ext. 101...</p>
+          </div>
+        </div>
+        <button id="resetAfterTransferBtn" type="button" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 transition shrink-0 cursor-pointer">
+          New Call Ready
+        </button>
+      </div>
+    </div>
 
     <!-- Main 12-Column Responsive Workspace -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-      <!-- Left Column: Persona, Confidence Mode, Topics & Voice Settings (5 cols) -->
+      <!-- 2. Left Column: Editable Script, Transfer Triggers & Voice Settings (5 cols) -->
       <section class="lg:col-span-5 space-y-5">
-        <!-- Script, Mode & Persona Card -->
+        <!-- Editable Script & Persona Card -->
         <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <h2 class="text-base font-semibold text-white">Bot Script, Mode &amp; Persona</h2>
-              <p class="text-xs text-slate-400">Shape how the bot speaks across any subject during the call.</p>
-            </div>
+          <div>
+            <h2 class="text-base font-semibold text-white">Allstate Script &amp; Assistant Instructions</h2>
+            <p class="text-xs text-slate-400">Edit the pitch and instructions freely—changes apply immediately on the call.</p>
           </div>
 
-          <!-- Topic & Confidence Mode Selector -->
+          <!-- Quick-Insert Script Presets -->
           <div>
-            <label for="confidenceModeSelect" class="block text-xs font-medium text-slate-300 mb-1.5">Topic &amp; Confidence Mode</label>
-            <select id="confidenceModeSelect" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 px-3 py-2.5 outline-none transition">
-              <option value="expert">Conversational Expert — Composed, clear, insightful &amp; natural</option>
-              <option value="socratic">Socratic Coach — Sharp probing questions &amp; mental clarity</option>
-              <option value="executive">Executive Briefing — Crisp takeaways, trade-offs &amp; next steps</option>
-              <option value="debate">Debate Partner — Articulate counterpoints, steelmanning &amp; nuance</option>
-            </select>
-            <p id="confidenceModeDesc" class="text-[11px] text-slate-400 mt-1.5">Speaks with calm authority, distills complexity into clean spoken sentences, and asks focused follow-ups.</p>
-          </div>
-
-          <!-- Quick-Insert Script Templates -->
-          <div>
-            <label class="block text-xs font-medium uppercase tracking-wider text-slate-400 mb-2">Quick-Insert Call Templates</label>
+            <label class="block text-xs font-medium uppercase tracking-wider text-slate-400 mb-2">Quick-Insert Script Presets</label>
             <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-2">
-              <button type="button" data-template="assistant" class="template-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 transition cursor-pointer">
-                <div class="text-xs font-semibold text-emerald-400">Any-Topic Host</div>
-                <div class="text-[11px] text-slate-400 truncate mt-0.5">Open dialogue &amp; deep dives</div>
+              <button type="button" data-preset="default_drop" class="preset-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 transition cursor-pointer">
+                <div class="text-xs font-semibold text-emerald-400">Default Rate Drop</div>
+                <div class="text-[11px] text-slate-400 truncate mt-0.5">Car &amp; home • no switch needed</div>
               </button>
-              <button type="button" data-template="appointment" class="template-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-sky-500/50 transition cursor-pointer">
-                <div class="text-xs font-semibold text-sky-400">Callback Check-In</div>
-                <div class="text-[11px] text-slate-400 truncate mt-0.5">Confirm schedule &amp; time</div>
+              <button type="button" data-preset="auto_focus" class="preset-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-sky-500/50 transition cursor-pointer">
+                <div class="text-xs font-semibold text-sky-400">Auto Rate Drop Focus</div>
+                <div class="text-[11px] text-slate-400 truncate mt-0.5">Lower car rates preview</div>
               </button>
-              <button type="button" data-template="insurance" class="template-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-violet-500/50 transition cursor-pointer">
-                <div class="text-xs font-semibold text-violet-400">Insurance Follow-Up</div>
-                <div class="text-[11px] text-slate-400 truncate mt-0.5">Quote review &amp; coverage</div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Quick-Try Topic Prompts -->
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <label class="text-xs font-medium uppercase tracking-wider text-slate-400">Quick-Try Topic Prompts</label>
-              <span class="text-[11px] text-slate-500">Click to test immediately</span>
-            </div>
-            <div class="flex flex-wrap gap-1.5">
-              <button type="button" data-topic-prompt="Explain quantum computing in plain spoken terms and why error correction matters so much right now." class="topic-prompt-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-emerald-500/40 transition cursor-pointer">
-                Quantum Computing
-              </button>
-              <button type="button" data-topic-prompt="Give me a confident negotiation strategy when pushing back on price without losing rapport." class="topic-prompt-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-emerald-500/40 transition cursor-pointer">
-                Negotiation Strategy
-              </button>
-              <button type="button" data-topic-prompt="What are the biggest engineering and human hurdles in deep space exploration over the next decade?" class="topic-prompt-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-emerald-500/40 transition cursor-pointer">
-                Space Exploration
-              </button>
-              <button type="button" data-topic-prompt="How can I apply Stoicism during high-pressure days when everything feels urgent?" class="topic-prompt-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-emerald-500/40 transition cursor-pointer">
-                Stoicism
+              <button type="button" data-preset="bundle_drop" class="preset-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-violet-500/50 transition cursor-pointer">
+                <div class="text-xs font-semibold text-violet-400">Home + Auto Bundle</div>
+                <div class="text-[11px] text-slate-400 truncate mt-0.5">Combined home &amp; auto rates</div>
               </button>
             </div>
           </div>
 
-          <!-- Opening Greeting -->
+          <!-- Editable Opening Pitch / Script -->
           <div>
-            <label for="greetingInput" class="block text-xs font-medium text-slate-300 mb-1.5">Opening Greeting</label>
-            <textarea id="greetingInput" rows="2" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 p-3 outline-none transition resize-none">Hello! This is Alex. Whether we are diving into science, strategy, philosophy, or everyday decisions, what is on your mind today?</textarea>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="openingScriptInput" class="block text-xs font-medium text-slate-300">Opening Greeting &amp; Rate-Drop Pitch</label>
+              <span class="text-[11px] text-emerald-400">Editable</span>
+            </div>
+            <textarea id="openingScriptInput" rows="4" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 p-3 outline-none transition resize-y">Hi there! Calling with a quick heads-up that Allstate recently dropped rates for car and home insurance. Right now you don't need to switch or buy anything—just take a quick listen to the new prices, because I'm sure you'll love our new rates. Would you like me to connect you to hear what dropped?</textarea>
           </div>
 
-          <!-- Bot Persona / Script Prompts -->
+          <!-- Editable Persona & Response Instructions -->
           <div>
-            <label for="personaInput" class="block text-xs font-medium text-slate-300 mb-1.5">Bot Persona &amp; Script Instructions</label>
-            <textarea id="personaInput" rows="4" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 p-3 outline-none transition resize-y">Speak like a poised, articulate conversationalist who can discuss any topic naturally over a phone call. Keep replies concise and punchy for voice audio, highlight key trade-offs without sounding stiff or robotic, and ask engaging follow-up questions.</textarea>
+            <div class="flex items-center justify-between mb-1.5">
+              <label for="personaInput" class="block text-xs font-medium text-slate-300">Listening &amp; Objection-Handling Instructions</label>
+              <span class="text-[11px] text-slate-400">Custom Rules</span>
+            </div>
+            <textarea id="personaInput" rows="5" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 p-3 outline-none transition resize-y">Listen carefully to the caller and keep replies natural, warm, and concise for voice. Remind them that Allstate recently lowered car and home insurance rates and that there is zero pressure to switch or buy anything today—just hear the new numbers because they will love the new rates. Answer questions about why rates dropped, car vs. home, or pricing clearly, and invite them to say yes, ok, or alright whenever they are ready to hear the prices.</textarea>
           </div>
         </div>
 
-        <!-- Voice Synthesizer Settings Card -->
+        <!-- Transfer Trigger & Handoff Settings Card -->
+        <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-semibold text-white">Transfer Triggers &amp; Live Handoff</h2>
+              <p class="text-xs text-slate-400">Automatically transfers the call when the caller agrees.</p>
+            </div>
+            <span class="px-2 py-0.5 rounded-md text-[11px] font-mono bg-amber-500/15 text-amber-300 border border-amber-500/30">Auto-Handoff</span>
+          </div>
+
+          <!-- Editable Transfer Target -->
+          <div>
+            <label for="transferTargetInput" class="block text-xs font-medium text-slate-300 mb-1.5">Your Transfer Target (Line / Name / Extension)</label>
+            <input id="transferTargetInput" type="text" value="Your Live Line / Ext. 101" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 text-sm text-slate-100 px-3.5 py-2 outline-none transition" />
+          </div>
+
+          <!-- Editable Transfer Trigger Phrases -->
+          <div>
+            <label for="transferTriggersInput" class="block text-xs font-medium text-slate-300 mb-1.5">Transfer Trigger Phrases (Comma-Separated)</label>
+            <textarea id="transferTriggersInput" rows="2" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 text-xs font-mono text-amber-200 p-3 outline-none transition resize-none">yes, ok, okay, alright, sure, sounds good, yeah, yep, transfer me, speak to someone, let's hear it, go ahead, fine</textarea>
+            <p class="text-[11px] text-slate-400 mt-1">Matching phrases (e.g., "yes", "ok", "alright", "sure") trigger an immediate handoff while avoiding accidental triggers like "not okay" or "no thanks".</p>
+          </div>
+
+          <!-- Editable Handoff Spoken Line -->
+          <div>
+            <label for="handoffMessageInput" class="block text-xs font-medium text-slate-300 mb-1.5">Spoken Handoff Line (Before Transfer)</label>
+            <textarea id="handoffMessageInput" rows="2" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 text-sm text-slate-100 p-3 outline-none transition resize-none">Awesome, let me transfer you over to Your Live Line / Ext. 101 right now so you can hear those new Allstate rates—no obligation to switch or buy anything.</textarea>
+          </div>
+        </div>
+
+        <!-- Voice & Prosody Card -->
         <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
           <div class="flex items-center justify-between">
             <div>
               <h2 class="text-base font-semibold text-white">Voice &amp; Prosody</h2>
-              <p class="text-xs text-slate-400">Configure browser speechSynthesis voice, rate, and pitch.</p>
+              <p class="text-xs text-slate-400">System voice, speech rate, and pitch controls.</p>
             </div>
             <button id="testVoiceBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer">
               Test Voice
@@ -289,18 +336,20 @@
         </div>
       </section>
 
-      <!-- Right Column: Live Transcript, Utterance Tester & Routing Notes (7 cols) -->
+      <!-- 3. Right Column: Live Call Transcript & Caller Utterance Input (7 cols) -->
       <section class="lg:col-span-7 space-y-5">
         <!-- Live Call Transcript Card -->
         <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col">
           <div class="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-slate-800">
             <div>
               <h2 class="text-base font-semibold text-white">Live Call Transcript</h2>
-              <p class="text-xs text-slate-400">Real-time conversation feed with speaker tags, timestamps &amp; topic tracking.</p>
+              <p class="text-xs text-slate-400">Real-time dialogue feed with speaker badges, timestamps &amp; transfer events.</p>
             </div>
 
-            <!-- Live Activity Indicator Pill -->
+            <!-- Live Activity Indicator Pill + Turn Counter -->
             <div class="flex items-center gap-2.5">
+              <span id="turnCountLabel" class="font-mono text-xs px-2.5 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-800">0 turns</span>
+
               <span id="activityBadge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-slate-800/90 text-slate-300 border border-slate-700">
                 <span id="activityDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
                 <span id="activityLabel">Standby</span>
@@ -312,21 +361,32 @@
             </div>
           </div>
 
-          <!-- Active Topic & Context Strip -->
-          <div class="mt-3 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800/90 flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="text-slate-400 shrink-0">Current Thread:</span>
-              <span id="currentTopicLabel" class="font-medium text-emerald-300 truncate">Open Conversation</span>
+          <!-- Quick-Test Caller Buttons -->
+          <div class="mt-3">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[11px] font-medium uppercase tracking-wider text-slate-400">Quick-Test Caller Utterances</span>
+              <span class="text-[11px] text-slate-500">Click to simulate caller voice/turn</span>
             </div>
-            <div class="flex items-center gap-2 text-[11px] text-slate-400">
-              <span id="turnCountLabel" class="font-mono">0 turns</span>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" data-quick-caller="Sounds alright" class="quick-caller-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition cursor-pointer">
+                "Sounds alright" (Triggers Transfer)
+              </button>
+              <button type="button" data-quick-caller="Do I have to switch today?" class="quick-caller-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 transition cursor-pointer">
+                "Do I have to switch today?"
+              </button>
+              <button type="button" data-quick-caller="What dropped, car or home?" class="quick-caller-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 transition cursor-pointer">
+                "What dropped, car or home?"
+              </button>
+              <button type="button" data-quick-caller="No thanks right now" class="quick-caller-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700/80 transition cursor-pointer">
+                "No thanks right now"
+              </button>
             </div>
           </div>
 
           <!-- Transcript Scroll Container -->
           <div id="transcriptLog" class="mt-3.5 h-80 sm:h-96 overflow-y-auto space-y-3 pr-1">
             <div data-placeholder="true" class="text-center py-12 px-4 text-sm text-slate-500 border border-dashed border-slate-800 rounded-xl">
-              No active call transcript yet. Click <strong class="text-slate-300">Start Call</strong>, pick a topic prompt, or send a caller message to begin.
+              No call turns logged yet. Click <strong class="text-slate-300">Start Call</strong>, use a quick-test button above, or type a caller message below.
             </div>
           </div>
 
@@ -335,7 +395,7 @@
             <input
               id="textUtteranceInput"
               type="text"
-              placeholder="Ask about any topic or type a simulated caller message (works without a mic)..."
+              placeholder="Type or paste a caller message (e.g., 'ok', 'alright let's hear it', 'why did rates drop?')..."
               class="flex-1 rounded-xl bg-slate-950/90 border border-slate-700 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 text-sm text-slate-100 px-3.5 py-2.5 outline-none transition"
             />
             <button
@@ -352,29 +412,29 @@
           </form>
         </div>
 
-        <!-- Permissions & Telephony Routing Architecture Notes -->
-        <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
+        <!-- Concise Permissions, Local AI & Telephony Bridging Notes -->
+        <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-3.5">
           <div class="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="16" x2="12" y2="12"></line>
               <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
-            <h2 class="text-sm font-semibold text-white">Browser Permissions, AI Keys &amp; Softphone / SIP / PSTN Routing Notes</h2>
+            <h2 class="text-sm font-semibold text-white">Browser Permissions, Local AI Storage &amp; Telephony / Dialer Bridging</h2>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs leading-relaxed text-slate-300">
             <div class="bg-slate-900/75 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
-              <div class="font-semibold text-emerald-400">1. HTTPS / Localhost, Mic &amp; Browser AI Keys</div>
+              <div class="font-semibold text-emerald-400">HTTPS / Localhost Mic &amp; localStorage AI Keys</div>
               <p class="text-slate-400">
-                Browsers require a secure context (<code class="text-slate-200 font-mono">https://</code> or <code class="text-slate-200 font-mono">http://localhost</code>) and microphone permission for <code class="text-slate-200 font-mono">SpeechRecognition</code>. Optional API keys in <strong class="text-slate-200">AI Settings</strong> are saved only in <code class="text-slate-200 font-mono">localStorage</code> for local/testing use—never embed secret API keys in public client apps or production telephony flows.
+                Microphone speech recognition requires <code class="text-slate-200 font-mono">https://</code> or <code class="text-slate-200 font-mono">http://localhost</code> plus mic permission. Optional API keys in <strong class="text-slate-200">AI Settings</strong> are saved only in <code class="text-slate-200 font-mono">localStorage</code> for local testing—never put secret keys in public client code or production dialers.
               </p>
             </div>
 
             <div class="bg-slate-900/75 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
-              <div class="font-semibold text-sky-400">2. Routing Audio &amp; LLM Calls in Telephony</div>
+              <div class="font-semibold text-sky-400">Bridging to Softphone, SIP, PSTN &amp; VICIdial</div>
               <p class="text-slate-400">
-                Web Speech APIs run inside the browser tab. To bridge onto a softphone, SIP trunk, or PSTN line, route virtual audio devices (such as VB-Cable or BlackHole) into your softphone—or run a backend server (Twilio Media Streams, SIP/WebRTC gateway, or Asterisk/FreeSWITCH) that holds your LLM credentials and streams audio/text securely.
+                Browser speech APIs run locally in this tab. To connect into a softphone, SIP trunk, PSTN line, or <strong class="text-slate-200">VICIdial</strong> campaign/blind-transfer flow, route virtual audio cables (such as VB-Cable or BlackHole) or hook transfer triggers into a server-side SIP/Asterisk/AMI or WebRTC telephony bridge.
               </p>
             </div>
           </div>
@@ -383,13 +443,13 @@
     </div>
   </div>
 
-  <!-- Optional Live LLM API Settings Drawer -->
+  <!-- 4. Optional Live AI Drawer (AI Settings) -->
   <div id="aiDrawerBackdrop" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-xs transition-opacity" aria-hidden="true"></div>
   <aside id="aiDrawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-panel border-l border-slate-800 shadow-2xl transform translate-x-full transition-transform duration-200 ease-out flex flex-col" role="dialog" aria-modal="true" aria-labelledby="aiDrawerTitle">
     <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between gap-3">
       <div>
         <h2 id="aiDrawerTitle" class="text-base font-bold text-white">Live AI &amp; Fallback Settings</h2>
-        <p class="text-xs text-slate-400">Stored locally in your browser. Falls back seamlessly if offline or unconfigured.</p>
+        <p class="text-xs text-slate-400">Stored locally in localStorage. Automatically falls back if offline or unconfigured.</p>
       </div>
       <button id="closeAiDrawerBtn" type="button" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer" aria-label="Close AI Settings">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -400,39 +460,34 @@
     </div>
 
     <div class="p-5 overflow-y-auto space-y-4 flex-1 text-sm">
-      <!-- Security Notice -->
       <div class="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 text-xs text-amber-200/90 leading-relaxed">
-        <strong class="font-semibold text-amber-300">Local / Testing Only:</strong> API keys entered here stay in your browser's <code class="font-mono">localStorage</code> for personal experimentation. For production apps or live SIP/PSTN voice pipelines, proxy LLM requests through a secure backend server.
+        <strong class="font-semibold text-amber-300">Local Testing Only:</strong> API keys stay in your browser's <code class="font-mono">localStorage</code>. For production or live SIP/VICIdial call flows, route LLM requests through a secure backend server.
       </div>
 
-      <!-- Enable Live AI Toggle -->
       <label class="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 cursor-pointer">
         <div>
-          <div class="font-semibold text-white text-sm">Use Live AI When Available</div>
-          <div class="text-xs text-slate-400">Uses your configured provider; automatically falls back to the built-in multi-topic engine on error or when offline.</div>
+          <div class="font-semibold text-white text-sm">Enable Live AI Responses</div>
+          <div class="text-xs text-slate-400">Uses Gemini or OpenAI-compatible chat API; falls back automatically if unavailable.</div>
         </div>
         <input id="useLiveAiToggle" type="checkbox" class="w-5 h-5 accent-emerald-500 rounded cursor-pointer shrink-0" />
       </label>
 
-      <!-- Provider Selector -->
       <div>
-        <label for="aiProviderSelect" class="block text-xs font-medium text-slate-300 mb-1.5">AI Provider Format</label>
+        <label for="aiProviderSelect" class="block text-xs font-medium text-slate-300 mb-1.5">Provider Format</label>
         <select id="aiProviderSelect" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 text-sm text-slate-100 px-3 py-2.5 outline-none transition">
           <option value="gemini">Google Gemini API (gemini-3-flash-preview)</option>
           <option value="openai">OpenAI-Compatible Chat Completions API</option>
         </select>
       </div>
 
-      <!-- API Key Input -->
       <div>
         <div class="flex items-center justify-between mb-1.5">
           <label for="aiApiKeyInput" class="block text-xs font-medium text-slate-300">API Key</label>
           <button id="toggleKeyVisibilityBtn" type="button" class="text-[11px] text-violet-300 hover:text-violet-200 cursor-pointer">Show / Hide</button>
         </div>
-        <input id="aiApiKeyInput" type="password" autocomplete="off" placeholder="Paste Gemini or OpenAI-compatible API key..." class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 text-sm text-slate-100 px-3.5 py-2.5 font-mono outline-none transition" />
+        <input id="aiApiKeyInput" type="password" autocomplete="off" placeholder="Paste Gemini or OpenAI-compatible key..." class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 text-sm text-slate-100 px-3.5 py-2.5 font-mono outline-none transition" />
       </div>
 
-      <!-- OpenAI-Compatible Fields (shown/contextualized cleanly) -->
       <div id="openaiEndpointGroup" class="space-y-3 rounded-xl bg-slate-900/60 border border-slate-800/90 p-3.5">
         <div>
           <label for="aiEndpointInput" class="block text-xs font-medium text-slate-300 mb-1.5">Chat Completions Endpoint URL</label>
@@ -444,17 +499,16 @@
         </div>
       </div>
 
-      <!-- Drawer Action Buttons -->
       <div class="pt-2 flex flex-wrap items-center justify-between gap-2">
         <button id="clearAiSettingsBtn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-medium text-rose-300 hover:bg-rose-500/10 border border-rose-500/25 transition cursor-pointer">
-          Clear Saved Key &amp; Reset
+          Clear &amp; Reset
         </button>
         <div class="flex items-center gap-2">
           <button id="testAiConnectionBtn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer">
-            Test Connection
+            Test API
           </button>
           <button id="saveAiSettingsBtn" type="button" class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition cursor-pointer">
-            Save Settings
+            Save
           </button>
         </div>
       </div>
@@ -465,141 +519,50 @@
 
   <script>
     /**
-     * CallBot Console Application
-     * Upgrades the browser voice call simulator with:
-     * 1. Optional Live AI (Gemini or OpenAI-compatible endpoint) stored in localStorage
-     *    with automatic, silent-safe fallback to the built-in multi-topic engine.
-     * 2. A rich, domain-aware multi-topic conversational engine that adapts to
-     *    Greeting, Persona, Confidence Mode, and recent conversation context,
-     *    speaking in clean, natural spoken prose (no markdown symbols).
-     * 3. Topic & Confidence Mode selector + quick-try topic prompts.
+     * CallBot Console — Allstate Car & Home Rate-Drop Voice Call Simulator
+     * Standalone browser simulator with:
+     * - Editable Allstate rate-drop script, persona instructions & quick-insert presets
+     * - Configurable transfer trigger phrases, target destination & spoken handoff line
+     * - Full call state machine (Idle, Ringing, Connected, Transferring, Transferred, Ended)
+     * - Live activity states (Standby, Listening, Bot Speaking, Thinking, Transferring)
+     * - Web Speech API synthesis & recognition + quick-test caller buttons + text fallback
+     * - Optional localStorage-backed Live AI (Gemini / OpenAI-compatible) with automatic fallback
      */
     (function () {
       'use strict';
 
-      const STORAGE_KEY = 'callbot_console_ai_settings_v1';
+      const STORAGE_KEY = 'callbot_allstate_ai_settings_v1';
 
-      // --- Script Templates ---
-      const SCRIPT_TEMPLATES = {
-        assistant: {
-          greeting: "Hello! This is Alex. Whether we are diving into science, strategy, philosophy, or everyday decisions, what is on your mind today?",
-          persona: "Speak like a poised, articulate conversationalist who can discuss any topic naturally over a phone call. Keep replies concise and punchy for voice audio, highlight key trade-offs without sounding stiff or robotic, and ask engaging follow-up questions."
+      // --- Quick-Insert Allstate Script Presets ---
+      const SCRIPT_PRESETS = {
+        default_drop: {
+          opening: "Hi there! Calling with a quick heads-up that Allstate recently dropped rates for car and home insurance. Right now you don't need to switch or buy anything—just take a quick listen to the new prices, because I'm sure you'll love our new rates. Would you like me to connect you to hear what dropped?",
+          persona: "Listen carefully to the caller and keep replies natural, warm, and concise for voice. Remind them that Allstate recently lowered car and home insurance rates and that there is zero pressure to switch or buy anything today—just hear the new numbers because they will love the new rates. Answer questions about why rates dropped, car vs. home, or pricing clearly, and invite them to say yes, ok, or alright whenever they are ready to hear the prices."
         },
-        appointment: {
-          greeting: "Hi there! This is Jordan calling from the scheduling desk to confirm your upcoming callback and appointment slot. Are you free for a quick confirmation?",
-          persona: "You are Jordan, a composed and helpful scheduling coordinator on a phone call. Help the caller confirm, reschedule, or cancel their appointment time, repeat dates and times clearly, and keep replies brief and natural for voice."
+        auto_focus: {
+          opening: "Hey there! Just sharing a quick update that Allstate recently dropped rates on car and home insurance, with big savings getting attention on auto right now. You don't have to switch or buy anything today—just listen to the new prices and I'm sure you'll love our new rates. Want me to patch you through to hear the numbers?",
+          persona: "Focus on how Allstate's recent rate drops affect car insurance while noting home rates dropped too. Reassure the caller there is no obligation to switch or buy anything right now—just listen to the new prices because they will love the new rates. Keep spoken answers brief, friendly, and easy to follow."
         },
-        insurance: {
-          greeting: "Hello! This is Taylor following up on your recent insurance quote request. Do you have a couple of minutes to review your coverage options and deductible preferences?",
-          persona: "You are Taylor, a clear and confident insurance specialist on a voice call. Explain coverage concepts plainly without jargon, weigh cost versus protection trade-offs, and offer clear next steps or a licensed agent review."
+        bundle_drop: {
+          opening: "Hello! Reaching out because Allstate recently dropped rates for both car and home insurance. You don't need to switch or buy anything right now—just listen to the new prices, because I'm sure you'll love our new rates on home and auto. Shall I transfer you over so you can hear the prices?",
+          persona: "Highlight Allstate's recent rate drops across both car and home insurance. Emphasize zero pressure to switch or buy anything today—just listen to the new prices because they will love the new rates. Keep replies conversational, helpful, and concise for voice audio."
         }
       };
-
-      // --- Topic & Confidence Modes ---
-      const CONFIDENCE_MODES = {
-        expert: {
-          label: 'Conversational Expert',
-          description: 'Speaks with calm authority, distills complexity into clean spoken sentences, and asks focused follow-ups.',
-          instruction: 'Adopt a calm, confident conversational expert tone. Give direct, well-structured spoken insights without jargon overload, note one practical trade-off when relevant, and close with a sharp follow-up question.'
-        },
-        socratic: {
-          label: 'Socratic Coach',
-          description: 'Clarifies assumptions, highlights core tensions, and guides the caller with thoughtful questions.',
-          instruction: 'Adopt a Socratic coach style. Briefly frame the core concept or tension, test underlying assumptions constructively, and ask a focused question that helps the caller sharpen their own thinking.'
-        },
-        executive: {
-          label: 'Executive Briefing',
-          description: 'Delivers high-signal takeaways, strategic trade-offs, and concrete next steps in tight spoken form.',
-          instruction: 'Adopt an executive briefing style. Lead with the bottom-line takeaway, state the key trade-off or risk plainly, and propose a crisp next step in two to three concise spoken sentences.'
-        },
-        debate: {
-          label: 'Debate Partner',
-          description: 'Presents strong counterpoints, steelmans opposing views, and keeps the exchange lively and fair.',
-          instruction: 'Adopt a sharp, articulate debate partner style. Acknowledge the strongest point on the caller side, offer a compelling counterpoint or alternative angle, and invite them to press back.'
-        }
-      };
-
-      // --- Domain Knowledge Modules for Any-Topic Confidence ---
-      const TOPIC_DOMAINS = [
-        {
-          id: 'Quantum Computing',
-          keywords: ['quantum', 'qubit', 'qubits', 'superposition', 'entanglement', 'error correction', 'decoherence', 'quantum gate'],
-          lead: 'Quantum computing uses qubits that can hold combinations of states and become entangled, allowing certain search, simulation, and optimization problems to be explored very differently from classical bits.',
-          tradeoff: 'From a practical standpoint, the real bottleneck is decoherence and quantum error correction, because fragile states lose accuracy fast unless scaled with fault-tolerant logical qubits.',
-          followup: 'Are you looking at quantum computing from a physics angle, or thinking about which industry problems could realistically benefit first?'
-        },
-        {
-          id: 'Negotiation & Persuasion',
-          keywords: ['negotiate', 'negotiation', 'leverage', 'pushback', 'price', 'discount', 'salary', 'deal', 'rapport', 'objection'],
-          lead: 'Strong negotiation starts with anchoring on clear value and listening for the other side’s underlying constraints rather than trading concessions out of discomfort.',
-          tradeoff: 'The key trade-off comes down to pushing hard for immediate terms versus preserving long-term trust and relationship momentum.',
-          followup: 'In the situation you have in mind, are you protecting price, timeline, or an ongoing working relationship?'
-        },
-        {
-          id: 'Space Exploration',
-          keywords: ['space', 'mars', 'moon', 'lunar', 'orbit', 'rocket', 'propulsion', 'astronaut', 'deep space', 'nasa', 'spacex'],
-          lead: 'Space exploration is shifting from one-off government milestones toward reusable launch cadence, orbital infrastructure, and sustained lunar or planetary operations.',
-          tradeoff: 'The biggest trade-off is balancing ambitious long-range destinations like Mars against radiation shielding, life-support reliability, and cost per kilogram.',
-          followup: 'What excites you most about space right now: reusable launch economics, orbital science, or long-duration crewed missions?'
-        },
-        {
-          id: 'Philosophy & Stoicism',
-          keywords: ['stoic', 'stoicism', 'marcus aurelius', 'seneca', 'epictetus', 'philosophy', 'meaning', 'ethics', 'virtue', 'mindset', 'discipline'],
-          lead: 'Stoicism centers on separating what is within your reasoned control, such as your judgment and response, from external events and outcomes you cannot dictate.',
-          tradeoff: 'The practical nuance is staying calm and grounded without turning detachment into indifference or ignoring real problems you can still fix.',
-          followup: 'Is there a specific pressure point or decision right now where applying that distinction feels hardest?'
-        },
-        {
-          id: 'Software & AI Systems',
-          keywords: ['ai', 'artificial intelligence', 'llm', 'model', 'software', 'code', 'coding', 'architecture', 'api', 'data', 'algorithm', 'agent'],
-          lead: 'Reliable AI and software systems depend less on a single clever prompt or model and more on clear boundaries, grounding, latency budgets, and predictable fallbacks.',
-          tradeoff: 'A classic trade-off in system design is higher capability and reasoning depth versus lower latency, cost, and deterministic reliability.',
-          followup: 'Are you building or evaluating a system yourself, and what matters most for your use case: speed, accuracy, or control?'
-        },
-        {
-          id: 'Business & Strategy',
-          keywords: ['business', 'strategy', 'startup', 'market', 'customer', 'revenue', 'product', 'growth', 'competition', 'management', 'leadership'],
-          lead: 'Sound business strategy comes down to choosing a distinct customer problem, deciding what not to build, and aligning execution around measurable feedback loops.',
-          tradeoff: 'The core tension is usually moving fast to test the market versus investing early in deeper product polish and operational foundations.',
-          followup: 'Are you zooming in on a specific product, team challenge, or market positioning question?'
-        },
-        {
-          id: 'History & Geopolitics',
-          keywords: ['history', 'historical', 'empire', 'ancient', 'war', 'treaty', 'economy', 'geopolitics', 'trade', 'industrial', 'century'],
-          lead: 'History rarely repeats identically, but recurring patterns around supply chains, incentives, technological shifts, and institutional trust show up again and again.',
-          tradeoff: 'When looking at historical turning points, the main trade-off is focusing on decisive leaders and events versus deeper structural and economic forces.',
-          followup: 'Which era, region, or turning point do you want to unpack together?'
-        },
-        {
-          id: 'Science & Health Basics',
-          keywords: ['science', 'physics', 'biology', 'chemistry', 'evolution', 'climate', 'energy', 'sleep', 'habit', 'health', 'wellness', 'nutrition'],
-          lead: 'In science and everyday wellness, consistent fundamentals and empirical evidence usually beat flashy shortcuts over the long run.',
-          tradeoff: 'The key trade-off is often short-term convenience or intensity versus sustainable habits you can maintain month after month.',
-          followup: 'What specific angle or everyday habit are you exploring around this?'
-        },
-        {
-          id: 'Creative Brainstorming & Lifestyle',
-          keywords: ['idea', 'brainstorm', 'creative', 'write', 'writing', 'story', 'book', 'travel', 'cook', 'cooking', 'food', 'music', 'sport', 'sports', 'movie'],
-          lead: 'Creative momentum builds fastest when you separate rough idea generation from editing, giving yourself room to explore bold angles before narrowing down.',
-          tradeoff: 'The sweet spot is keeping enough structure to spark direction while leaving plenty of room for surprise and personal taste.',
-          followup: 'Do you want to explore a few distinct directions quickly, or go deeper into one specific idea?'
-        }
-      ];
 
       // --- Application State ---
       const state = {
-        callStatus: 'Idle', // 'Idle' | 'Ringing' | 'Connected' | 'Ended'
-        activity: 'Standby', // 'Standby' | 'Listening' | 'Bot Speaking' | 'Thinking'
+        callStatus: 'Idle', // 'Idle' | 'Ringing' | 'Connected' | 'Transferring' | 'Transferred' | 'Ended'
+        activity: 'Standby', // 'Standby' | 'Listening' | 'Bot Speaking' | 'Thinking' | 'Transferring'
         isMuted: false,
         secondsElapsed: 0,
         timerInterval: null,
         ringTimeout: null,
+        transferCompleteTimeout: null,
         voices: [],
         recognition: null,
         recognitionActive: false,
         shouldListen: false,
         isSpeaking: false,
-        currentTopic: 'Open Conversation',
         conversationHistory: [], // { role: 'bot' | 'user', text: string }
         aiSettings: {
           useLiveAi: false,
@@ -625,16 +588,26 @@
         muteMicLabel: document.getElementById('muteMicLabel'),
         hangUpBtn: document.getElementById('hangUpBtn'),
         openAiDrawerBtn: document.getElementById('openAiDrawerBtn'),
+        headerTransferTarget: document.getElementById('headerTransferTarget'),
+        transferNowBtn: document.getElementById('transferNowBtn'),
 
         ttsStatusDot: document.getElementById('ttsStatusDot'),
         ttsSupportText: document.getElementById('ttsSupportText'),
         sttStatusDot: document.getElementById('sttStatusDot'),
         sttSupportText: document.getElementById('sttSupportText'),
 
-        confidenceModeSelect: document.getElementById('confidenceModeSelect'),
-        confidenceModeDesc: document.getElementById('confidenceModeDesc'),
-        greetingInput: document.getElementById('greetingInput'),
+        liveTransferBanner: document.getElementById('liveTransferBanner'),
+        transferBannerTitle: document.getElementById('transferBannerTitle'),
+        transferBannerPhrase: document.getElementById('transferBannerPhrase'),
+        transferBannerDetail: document.getElementById('transferBannerDetail'),
+        resetAfterTransferBtn: document.getElementById('resetAfterTransferBtn'),
+
+        openingScriptInput: document.getElementById('openingScriptInput'),
         personaInput: document.getElementById('personaInput'),
+        transferTargetInput: document.getElementById('transferTargetInput'),
+        transferTriggersInput: document.getElementById('transferTriggersInput'),
+        handoffMessageInput: document.getElementById('handoffMessageInput'),
+
         voiceSelect: document.getElementById('voiceSelect'),
         rateSlider: document.getElementById('rateSlider'),
         rateValue: document.getElementById('rateValue'),
@@ -642,11 +615,10 @@
         pitchValue: document.getElementById('pitchValue'),
         testVoiceBtn: document.getElementById('testVoiceBtn'),
 
+        turnCountLabel: document.getElementById('turnCountLabel'),
         activityBadge: document.getElementById('activityBadge'),
         activityDot: document.getElementById('activityDot'),
         activityLabel: document.getElementById('activityLabel'),
-        currentTopicLabel: document.getElementById('currentTopicLabel'),
-        turnCountLabel: document.getElementById('turnCountLabel'),
         clearTranscriptBtn: document.getElementById('clearTranscriptBtn'),
         transcriptLog: document.getElementById('transcriptLog'),
         textUtteranceForm: document.getElementById('textUtteranceForm'),
@@ -670,7 +642,7 @@
         aiDrawerStatus: document.getElementById('aiDrawerStatus')
       };
 
-      // --- Helpers ---
+      // --- Utilities ---
       function getTimestamp() {
         const now = new Date();
         return now.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -682,10 +654,6 @@
         return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
       }
 
-      /**
-       * Cleans markdown characters (*, #, `, bullets) so speechSynthesis reads
-       * smooth, natural spoken sentences instead of punctuation artifacts.
-       */
       function sanitizeForSpeech(text) {
         return (text || '')
           .replace(/```[\s\S]*?```/g, ' ')
@@ -695,8 +663,15 @@
           .trim();
       }
 
-      function updateTurnAndTopicUI() {
-        dom.currentTopicLabel.textContent = state.currentTopic || 'Open Conversation';
+      function getTransferTarget() {
+        return (dom.transferTargetInput.value || '').trim() || 'Your Live Line';
+      }
+
+      function syncTransferTargetUI() {
+        dom.headerTransferTarget.textContent = getTransferTarget();
+      }
+
+      function updateTurnCounter() {
         const turns = state.conversationHistory.length;
         dom.turnCountLabel.textContent = `${turns} ${turns === 1 ? 'turn' : 'turns'}`;
       }
@@ -704,16 +679,749 @@
       function updateEngineBadge() {
         const liveReady = state.aiSettings.useLiveAi && Boolean(state.aiSettings.apiKey.trim());
         if (liveReady) {
-          const providerName = state.aiSettings.provider === 'openai'
+          const name = state.aiSettings.provider === 'openai'
             ? (state.aiSettings.model.trim() || 'OpenAI-Compatible')
             : 'Gemini Live AI';
           dom.engineModePill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-violet-500/15 text-violet-300 border border-violet-500/30';
           dom.engineModeDot.className = 'w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse';
-          dom.engineModeLabel.textContent = `Live AI: ${providerName}`;
+          dom.engineModeLabel.textContent = `Live AI: ${name}`;
         } else {
           dom.engineModePill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25';
           dom.engineModeDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
-          dom.engineModeLabel.textContent = 'Built-In Multi-Topic Engine';
+          dom.engineModeLabel.textContent = 'Built-In Rate-Drop & Transfer Engine';
+        }
+      }
+
+      // --- Transcript Rendering ---
+      function appendTranscriptEntry(speaker, text) {
+        if (!text || !text.trim()) return;
+
+        const emptyPlaceholder = dom.transcriptLog.querySelector('[data-placeholder="true"]');
+        if (!dom.transcriptLog.querySelector('[data-entry="true"]')) {
+          dom.transcriptLog.innerHTML = '';
+        }
+        if (emptyPlaceholder) emptyPlaceholder.remove();
+
+        const entry = document.createElement('div');
+        entry.setAttribute('data-entry', 'true');
+
+        let badgeClass = 'bg-slate-800 text-slate-300 border-slate-700';
+        let bubbleClass = 'bg-slate-900/80 border-slate-800 text-slate-200';
+
+        if (speaker === 'Bot') {
+          badgeClass = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
+          bubbleClass = 'bg-emerald-950/25 border-emerald-500/20 text-slate-100';
+        } else if (speaker === 'Caller') {
+          badgeClass = 'bg-sky-500/15 text-sky-300 border-sky-500/30';
+          bubbleClass = 'bg-sky-950/25 border-sky-500/20 text-slate-100';
+        } else if (speaker === 'Transfer') {
+          badgeClass = 'bg-amber-500/20 text-amber-200 border-amber-400/40';
+          bubbleClass = 'bg-amber-950/35 border-amber-400/40 text-amber-100 font-medium';
+        } else if (speaker === 'System') {
+          badgeClass = 'bg-slate-800 text-slate-300 border-slate-700';
+          bubbleClass = 'bg-slate-900/60 border-slate-800/90 text-slate-400 italic';
+        }
+
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'flex items-center justify-between gap-2 mb-1';
+
+        const tagSpan = document.createElement('span');
+        tagSpan.className = `inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${badgeClass}`;
+        tagSpan.textContent = speaker;
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'font-mono text-[11px] text-slate-500';
+        timeSpan.textContent = getTimestamp();
+
+        headerDiv.appendChild(tagSpan);
+        headerDiv.appendChild(timeSpan);
+
+        const bodyDiv = document.createElement('div');
+        bodyDiv.className = 'text-sm leading-relaxed break-words';
+        bodyDiv.textContent = text.trim();
+
+        entry.className = `rounded-xl border p-3 ${bubbleClass}`;
+        entry.appendChild(headerDiv);
+        entry.appendChild(bodyDiv);
+
+        dom.transcriptLog.appendChild(entry);
+        dom.transcriptLog.scrollTop = dom.transcriptLog.scrollHeight;
+      }
+
+      function clearTranscript() {
+        dom.transcriptLog.innerHTML = `
+          <div data-placeholder="true" class="text-center py-12 px-4 text-sm text-slate-500 border border-dashed border-slate-800 rounded-xl">
+            Transcript cleared. Start a call, click a quick-test button, or type a caller turn below.
+          </div>
+        `;
+        state.conversationHistory = [];
+        updateTurnCounter();
+      }
+
+      // --- Activity State ---
+      function setActivity(newActivity) {
+        state.activity = newActivity;
+        dom.activityLabel.textContent = newActivity;
+
+        dom.activityBadge.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition';
+        dom.activityDot.className = 'w-2 h-2 rounded-full';
+
+        switch (newActivity) {
+          case 'Listening':
+            dom.activityBadge.classList.add('bg-sky-500/15', 'text-sky-300', 'border-sky-500/30');
+            dom.activityDot.classList.add('bg-sky-400', 'animate-pulse');
+            break;
+          case 'Bot Speaking':
+            dom.activityBadge.classList.add('bg-emerald-500/15', 'text-emerald-300', 'border-emerald-500/30');
+            dom.activityDot.classList.add('bg-emerald-400', 'animate-ping');
+            break;
+          case 'Thinking':
+            dom.activityBadge.classList.add('bg-violet-500/15', 'text-violet-300', 'border-violet-500/30');
+            dom.activityDot.className = 'w-2 h-2 rounded-full bg-violet-400 animate-pulse';
+            break;
+          case 'Transferring':
+            dom.activityBadge.classList.add('bg-amber-500/20', 'text-amber-200', 'border-amber-400/40');
+            dom.activityDot.classList.add('bg-amber-400', 'animate-ping');
+            break;
+          default:
+            dom.activityBadge.classList.add('bg-slate-800/90', 'text-slate-300', 'border-slate-700');
+            dom.activityDot.classList.add('bg-slate-500');
+            break;
+        }
+      }
+
+      // --- Call State Machine ---
+      function setCallStatus(newStatus) {
+        state.callStatus = newStatus;
+        dom.callStateText.textContent = newStatus;
+
+        dom.callStateBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition';
+        dom.callStateDot.className = 'w-2 h-2 rounded-full';
+        dom.ringAnimation.classList.add('hidden');
+
+        if (newStatus === 'Idle') {
+          dom.callStateBadge.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700');
+          dom.callStateDot.classList.add('bg-slate-400');
+          dom.startCallBtn.disabled = false;
+          dom.muteMicBtn.disabled = true;
+          dom.hangUpBtn.disabled = true;
+          dom.transferNowBtn.disabled = true;
+        } else if (newStatus === 'Ringing') {
+          dom.callStateBadge.classList.add('bg-amber-500/15', 'text-amber-300', 'border-amber-500/30');
+          dom.callStateDot.classList.add('bg-amber-400', 'animate-ping');
+          dom.ringAnimation.classList.remove('hidden');
+          dom.startCallBtn.disabled = true;
+          dom.muteMicBtn.disabled = true;
+          dom.hangUpBtn.disabled = false;
+          dom.transferNowBtn.disabled = false;
+        } else if (newStatus === 'Connected') {
+          dom.callStateBadge.classList.add('bg-emerald-500/15', 'text-emerald-300', 'border-emerald-500/30');
+          dom.callStateDot.classList.add('bg-emerald-400');
+          dom.ringAnimation.classList.remove('hidden');
+          dom.startCallBtn.disabled = true;
+          dom.muteMicBtn.disabled = false;
+          dom.hangUpBtn.disabled = false;
+          dom.transferNowBtn.disabled = false;
+        } else if (newStatus === 'Transferring') {
+          dom.callStateBadge.classList.add('bg-amber-500/20', 'text-amber-200', 'border-amber-400/40');
+          dom.callStateDot.classList.add('bg-amber-400', 'animate-ping');
+          dom.ringAnimation.classList.remove('hidden');
+          dom.startCallBtn.disabled = true;
+          dom.muteMicBtn.disabled = true;
+          dom.hangUpBtn.disabled = false;
+          dom.transferNowBtn.disabled = true;
+        } else if (newStatus === 'Transferred') {
+          dom.callStateBadge.classList.add('bg-sky-500/20', 'text-sky-200', 'border-sky-400/40');
+          dom.callStateDot.classList.add('bg-sky-400');
+          dom.startCallBtn.disabled = false;
+          dom.muteMicBtn.disabled = true;
+          dom.hangUpBtn.disabled = false;
+          dom.transferNowBtn.disabled = true;
+        } else if (newStatus === 'Ended') {
+          dom.callStateBadge.classList.add('bg-rose-500/15', 'text-rose-300', 'border-rose-500/30');
+          dom.callStateDot.classList.add('bg-rose-400');
+          dom.startCallBtn.disabled = false;
+          dom.muteMicBtn.disabled = true;
+          dom.hangUpBtn.disabled = true;
+          dom.transferNowBtn.disabled = true;
+        }
+      }
+
+      function startTimer() {
+        stopTimer();
+        state.secondsElapsed = 0;
+        dom.callTimer.textContent = formatDuration(0);
+        state.timerInterval = setInterval(() => {
+          state.secondsElapsed += 1;
+          dom.callTimer.textContent = formatDuration(state.secondsElapsed);
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (state.timerInterval) {
+          clearInterval(state.timerInterval);
+          state.timerInterval = null;
+        }
+      }
+
+      // --- Transfer Trigger Detection & Handoff Execution ---
+      function parseTriggerPhrases() {
+        return (dom.transferTriggersInput.value || '')
+          .split(',')
+          .map((t) => t.trim().toLowerCase())
+          .filter(Boolean);
+      }
+
+      function detectTransferTrigger(callerText) {
+        const clean = (callerText || '').trim().toLowerCase();
+        if (!clean) return null;
+
+        // Guard against explicit negative / refusal phrases
+        const isExplicitRefusal = /\b(no|nope|nah|not interested|not right now|don't want|do not want|stop calling|hang up|no thanks)\b/i.test(clean);
+        const triggers = parseTriggerPhrases();
+
+        for (const phrase of triggers) {
+          const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(`(^|[^a-z0-9'])${escaped}([^a-z0-9']|$)`, 'i');
+          if (regex.test(clean)) {
+            // If the phrase is a short affirmation like "ok", "alright", "fine", "sure" and preceded by "not", skip
+            if (isExplicitRefusal && phrase.length <= 8 && !phrase.includes('transfer') && !phrase.includes('speak')) {
+              continue;
+            }
+            return phrase;
+          }
+        }
+        return null;
+      }
+
+      function executeLiveTransfer(matchedPhrase = 'Manual Transfer') {
+        if (state.callStatus === 'Transferring' || state.callStatus === 'Transferred') return;
+
+        if (state.ringTimeout) {
+          clearTimeout(state.ringTimeout);
+          state.ringTimeout = null;
+        }
+        if (state.transferCompleteTimeout) {
+          clearTimeout(state.transferCompleteTimeout);
+          state.transferCompleteTimeout = null;
+        }
+
+        // Pause microphone listening cleanly
+        stopListening();
+        state.isMuted = true;
+        dom.muteMicLabel.textContent = 'Unmute Mic';
+
+        const target = getTransferTarget();
+        setCallStatus('Transferring');
+        setActivity('Transferring');
+
+        // Show Live Call Transfer banner
+        dom.liveTransferBanner.classList.remove('hidden');
+        dom.transferBannerTitle.textContent = `Transferring Caller → ${target}`;
+        dom.transferBannerPhrase.textContent = `Trigger: "${matchedPhrase}"`;
+        dom.transferBannerDetail.textContent = `Routing call to ${target} and pausing bot speech recognition...`;
+
+        appendTranscriptEntry(
+          'Transfer',
+          `Transfer Triggered ("${matchedPhrase}") — Initiating live handoff to ${target}. Mic listening paused.`
+        );
+
+        const defaultHandoff = `Awesome, let me connect you with ${target} right now so you can hear those new Allstate car and home rates—no pressure to switch or buy anything.`;
+        const handoffLine = (dom.handoffMessageInput.value || '').trim() || defaultHandoff;
+
+        speakBotMessage(handoffLine, {
+          logToTranscript: true,
+          resumeListeningAfter: false
+        });
+
+        state.transferCompleteTimeout = setTimeout(() => {
+          if (state.callStatus === 'Transferring') {
+            setCallStatus('Transferred');
+            setActivity('Standby');
+            dom.transferBannerTitle.textContent = `Transferred to ${target}`;
+            dom.transferBannerDetail.textContent = `Caller is now connected with ${target}. Click "New Call Ready" or "Start Call" for the next outreach call.`;
+            appendTranscriptEntry(
+              'Transfer',
+              `Live call transferred to ${target}. Bot on standby.`
+            );
+          }
+        }, 1600);
+      }
+
+      function resetTransferBannerAndReady() {
+        if (state.transferCompleteTimeout) {
+          clearTimeout(state.transferCompleteTimeout);
+          state.transferCompleteTimeout = null;
+        }
+        stopListening();
+        stopTimer();
+        if (synthSupported) {
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+        }
+        state.isSpeaking = false;
+        state.isMuted = false;
+        dom.muteMicLabel.textContent = 'Mute Mic';
+        dom.liveTransferBanner.classList.add('hidden');
+        setCallStatus('Idle');
+        setActivity('Standby');
+      }
+
+      // --- Speech Synthesis (Bot Voice Output) ---
+      const synthSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+
+      function populateVoices() {
+        if (!synthSupported) {
+          dom.voiceSelect.innerHTML = '<option value="">speechSynthesis not supported</option>';
+          dom.ttsStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-400';
+          dom.ttsSupportText.textContent = 'Unavailable';
+          return;
+        }
+
+        try {
+          const voices = window.speechSynthesis.getVoices() || [];
+          state.voices = voices;
+
+          dom.ttsStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
+          dom.ttsSupportText.textContent = `${voices.length} voice${voices.length === 1 ? '' : 's'} ready`;
+
+          if (!voices.length) {
+            dom.voiceSelect.innerHTML = '<option value="">Default System Voice</option>';
+            return;
+          }
+
+          const previousSelection = dom.voiceSelect.value;
+          dom.voiceSelect.innerHTML = '';
+
+          voices.forEach((voice, idx) => {
+            const option = document.createElement('option');
+            option.value = String(idx);
+            const langTag = voice.lang ? ` (${voice.lang})` : '';
+            const defaultTag = voice.default ? ' — Default' : '';
+            option.textContent = `${voice.name}${langTag}${defaultTag}`;
+            dom.voiceSelect.appendChild(option);
+          });
+
+          if (previousSelection && Number(previousSelection) < voices.length) {
+            dom.voiceSelect.value = previousSelection;
+          } else {
+            const englishIdx = voices.findIndex((v) => /en/i.test(v.lang));
+            if (englishIdx >= 0) dom.voiceSelect.value = String(englishIdx);
+          }
+        } catch (err) {
+          appendTranscriptEntry('System', `Unable to load voices: ${err.message}`);
+        }
+      }
+
+      function speakBotMessage(text, options = {}) {
+        const spokenText = sanitizeForSpeech(text);
+        if (!spokenText) return;
+
+        const { logToTranscript = true, resumeListeningAfter = true } = options;
+
+        if (logToTranscript) {
+          appendTranscriptEntry('Bot', spokenText);
+          state.conversationHistory.push({ role: 'bot', text: spokenText });
+          updateTurnCounter();
+        }
+
+        if (!synthSupported) {
+          if (state.callStatus === 'Connected' && resumeListeningAfter && !state.isMuted) {
+            setActivity('Listening');
+          } else if (state.callStatus !== 'Transferring') {
+            setActivity('Standby');
+          }
+          return;
+        }
+
+        try {
+          const wasListening = state.recognitionActive;
+          if (wasListening && state.recognition) {
+            state.shouldListen = false;
+            try { state.recognition.stop(); } catch (_) {}
+          }
+
+          window.speechSynthesis.cancel();
+
+          const utterance = new SpeechSynthesisUtterance(spokenText);
+          const selectedIdx = Number(dom.voiceSelect.value);
+          if (!Number.isNaN(selectedIdx) && state.voices[selectedIdx]) {
+            utterance.voice = state.voices[selectedIdx];
+          }
+          utterance.rate = parseFloat(dom.rateSlider.value) || 1.0;
+          utterance.pitch = parseFloat(dom.pitchSlider.value) || 1.0;
+
+          utterance.onstart = () => {
+            state.isSpeaking = true;
+            setActivity(state.callStatus === 'Transferring' ? 'Transferring' : 'Bot Speaking');
+          };
+
+          utterance.onend = () => {
+            state.isSpeaking = false;
+            if (state.callStatus === 'Connected' && resumeListeningAfter && !state.isMuted) {
+              startListening();
+            } else if (state.callStatus !== 'Transferring') {
+              setActivity('Standby');
+            }
+          };
+
+          utterance.onerror = (event) => {
+            state.isSpeaking = false;
+            if (event.error !== 'interrupted' && event.error !== 'canceled') {
+              appendTranscriptEntry('System', `Speech synthesis status: ${event.error}`);
+            }
+            if (state.callStatus === 'Connected' && resumeListeningAfter && !state.isMuted) {
+              startListening();
+            } else if (state.callStatus !== 'Transferring') {
+              setActivity('Standby');
+            }
+          };
+
+          setActivity(state.callStatus === 'Transferring' ? 'Transferring' : 'Bot Speaking');
+          window.speechSynthesis.speak(utterance);
+        } catch (err) {
+          state.isSpeaking = false;
+          appendTranscriptEntry('System', `Speech synthesis error: ${err.message}`);
+          setActivity('Standby');
+        }
+      }
+
+      // --- Speech Recognition (Caller Microphone Input) ---
+      const SpeechRecognitionCtor =
+        typeof window !== 'undefined'
+          ? window.SpeechRecognition || window.webkitSpeechRecognition || null
+          : null;
+
+      function initSpeechRecognition() {
+        if (!SpeechRecognitionCtor) {
+          dom.sttStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
+          dom.sttSupportText.textContent = 'Unavailable (use text / quick buttons)';
+          return;
+        }
+
+        dom.sttStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
+        dom.sttSupportText.textContent = 'Supported';
+
+        try {
+          const rec = new SpeechRecognitionCtor();
+          rec.continuous = false;
+          rec.interimResults = false;
+          rec.lang = 'en-US';
+
+          rec.onstart = () => {
+            state.recognitionActive = true;
+            if (!state.isSpeaking && !state.isMuted && state.callStatus === 'Connected') {
+              setActivity('Listening');
+            }
+          };
+
+          rec.onresult = (event) => {
+            const transcript = event.results?.[0]?.[0]?.transcript || '';
+            if (transcript.trim()) {
+              handleCallerUtterance(transcript.trim());
+            }
+          };
+
+          rec.onerror = (event) => {
+            state.recognitionActive = false;
+            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+              appendTranscriptEntry('System', 'Microphone access was denied or blocked. You can still type caller turns or click quick-test buttons.');
+              state.shouldListen = false;
+              setActivity('Standby');
+            } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
+              appendTranscriptEntry('System', `Speech recognition notice: ${event.error}`);
+            }
+          };
+
+          rec.onend = () => {
+            state.recognitionActive = false;
+            if (state.callStatus === 'Connected' && state.shouldListen && !state.isMuted && !state.isSpeaking) {
+              setTimeout(() => {
+                if (state.callStatus === 'Connected' && state.shouldListen && !state.isMuted && !state.isSpeaking) {
+                  startListening();
+                }
+              }, 250);
+            } else if (state.callStatus !== 'Connected' && state.callStatus !== 'Transferring') {
+              setActivity('Standby');
+            }
+          };
+
+          state.recognition = rec;
+        } catch (err) {
+          appendTranscriptEntry('System', `Could not initialize SpeechRecognition: ${err.message}`);
+        }
+      }
+
+      function startListening() {
+        if (!state.recognition || state.isMuted || state.callStatus !== 'Connected' || state.isSpeaking) {
+          return;
+        }
+        state.shouldListen = true;
+        if (state.recognitionActive) {
+          setActivity('Listening');
+          return;
+        }
+        try {
+          state.recognition.start();
+          setActivity('Listening');
+        } catch (_) {}
+      }
+
+      function stopListening() {
+        state.shouldListen = false;
+        if (state.recognition && state.recognitionActive) {
+          try {
+            state.recognition.stop();
+          } catch (_) {}
+        }
+        state.recognitionActive = false;
+      }
+
+      // --- Built-In Allstate Rate-Drop Engine & Optional Live AI ---
+      function buildSystemPrompt() {
+        const opening = dom.openingScriptInput.value.trim() || SCRIPT_PRESETS.default_drop.opening;
+        const persona = dom.personaInput.value.trim() || SCRIPT_PRESETS.default_drop.persona;
+        const target = getTransferTarget();
+        const triggers = dom.transferTriggersInput.value.trim();
+
+        return [
+          `Opening pitch used on this call: "${opening}"`,
+          `Assistant instructions: ${persona}`,
+          `Transfer target: ${target}. Trigger phrases that transfer the call: ${triggers}.`,
+          'Rules: Keep spoken replies warm, concise, and natural (2 to 3 short sentences). Reiterate that Allstate recently dropped rates for car and home insurance and that the caller does not need to switch or buy anything right now—just listen to the new prices because they will love the new rates. Never use markdown asterisks or bullet points.'
+        ].join('\n');
+      }
+
+      function generateBuiltInRateDropReply(callerText) {
+        const lower = callerText.toLowerCase();
+
+        // Questions about switching or buying today
+        if (/\b(switch|buy|commit|obligation|contract|sign up|today|right now|pressure)\b/.test(lower)) {
+          return "You don't need to switch or buy anything right now at all. Allstate recently dropped rates for car and home insurance, so you just listen to the new prices—and I'm sure you'll love our new rates. Ready for me to connect you to hear them?";
+        }
+
+        // Questions about car vs. home or which dropped
+        if (/\b(car|auto|home|house|homeowners|both|which|what dropped|dropped)\b/.test(lower)) {
+          return "Allstate recently dropped rates for both car and home insurance. There's no need to switch or buy anything today—just listen to the new prices because I'm sure you'll love our new rates. Want me to transfer you over so you can hear the prices?";
+        }
+
+        // Questions about pricing / how much / why so cheap
+        if (/\b(price|prices|rate|rates|cheap|discount|save|saving|how much|why)\b/.test(lower)) {
+          return "Rates recently came down on Allstate car and home policies, and the new pricing is what gets people's attention. You don't have to switch or buy anything right now—just listen to the new prices since I'm sure you'll love our new rates. Shall I patch you through to hear them?";
+        }
+
+        // Hesitation / pushback / refusal
+        if (/\b(no|nope|nah|not interested|busy|no thanks|don't need|do not need|maybe later)\b/.test(lower)) {
+          return "Totally fair—no pressure at all. Just keep in mind Allstate recently dropped car and home rates, and you don't need to switch or buy anything today, just listen to the new prices because I'm sure you'll love our new rates. If you change your mind and want to hear them, just say ok or alright.";
+        }
+
+        // Default conversational response keeping the exact pitch clear
+        return "Allstate recently dropped rates for car and home insurance, and right now you don't need to switch or buy anything—just listen to the new prices because I'm sure you'll love our new rates. Would you like me to transfer you so you can hear the prices?";
+      }
+
+      async function callLiveAi(callerText) {
+        const { provider, apiKey, endpoint, model } = state.aiSettings;
+        if (!apiKey) {
+          throw new Error('Missing API key');
+        }
+
+        const systemInstruction = buildSystemPrompt();
+        const historySlice = state.conversationHistory.slice(-10);
+
+        if (provider === 'gemini') {
+          const contents = historySlice.map((msg) => ({
+            role: msg.role === 'bot' ? 'model' : 'user',
+            parts: [{ text: msg.text }]
+          }));
+          if (!contents.length || contents[contents.length - 1].parts[0].text !== callerText) {
+            contents.push({ role: 'user', parts: [{ text: callerText }] });
+          }
+
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemInstruction }] },
+              contents,
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 180
+              }
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Gemini HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+          const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (!replyText.trim()) {
+            throw new Error('Empty Gemini response');
+          }
+          return sanitizeForSpeech(replyText);
+        }
+
+        // OpenAI-compatible Chat Completions endpoint
+        const messages = [
+          { role: 'system', content: systemInstruction },
+          ...historySlice.map((msg) => ({
+            role: msg.role === 'bot' ? 'assistant' : 'user',
+            content: msg.text
+          }))
+        ];
+        if (messages[messages.length - 1].content !== callerText) {
+          messages.push({ role: 'user', content: callerText });
+        }
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: model || 'gpt-4o-mini',
+            messages,
+            temperature: 0.7,
+            max_tokens: 180
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Endpoint HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        const replyText = data?.choices?.[0]?.message?.content || '';
+        if (!replyText.trim()) {
+          throw new Error('Empty chat completion response');
+        }
+        return sanitizeForSpeech(replyText);
+      }
+
+      async function generateBotReplySmart(callerText) {
+        const liveEnabled = state.aiSettings.useLiveAi && Boolean(state.aiSettings.apiKey.trim());
+        if (liveEnabled && navigator.onLine !== false) {
+          try {
+            return await callLiveAi(callerText);
+          } catch (_) {
+            return generateBuiltInRateDropReply(callerText);
+          }
+        }
+        return generateBuiltInRateDropReply(callerText);
+      }
+
+      async function handleCallerUtterance(text) {
+        const clean = (text || '').trim();
+        if (!clean) return;
+
+        if (state.callStatus === 'Transferring' || state.callStatus === 'Transferred') {
+          appendTranscriptEntry('System', 'Call has already been transferred. Click "New Call Ready" or "Start Call" to begin another call.');
+          return;
+        }
+
+        if (state.callStatus === 'Idle' || state.callStatus === 'Ended') {
+          startCallImmediate();
+        }
+
+        appendTranscriptEntry('Caller', clean);
+        state.conversationHistory.push({ role: 'user', text: clean });
+        updateTurnCounter();
+
+        // Check transfer trigger phrases first
+        const matchedTrigger = detectTransferTrigger(clean);
+        if (matchedTrigger) {
+          executeLiveTransfer(matchedTrigger);
+          return;
+        }
+
+        setActivity('Thinking');
+        const reply = await generateBotReplySmart(clean);
+        if (state.callStatus === 'Ended' || state.callStatus === 'Transferring' || state.callStatus === 'Transferred') {
+          return;
+        }
+
+        speakBotMessage(reply, { logToTranscript: true, resumeListeningAfter: true });
+      }
+
+      // --- Call Lifecycle Actions ---
+      function startCallImmediate() {
+        if (state.ringTimeout) {
+          clearTimeout(state.ringTimeout);
+          state.ringTimeout = null;
+        }
+        if (state.transferCompleteTimeout) {
+          clearTimeout(state.transferCompleteTimeout);
+          state.transferCompleteTimeout = null;
+        }
+        dom.liveTransferBanner.classList.add('hidden');
+        state.isMuted = false;
+        dom.muteMicLabel.textContent = 'Mute Mic';
+        setCallStatus('Connected');
+        startTimer();
+        appendTranscriptEntry('System', 'Call connected.');
+
+        const opening = dom.openingScriptInput.value.trim() || SCRIPT_PRESETS.default_drop.opening;
+        speakBotMessage(opening, { logToTranscript: true, resumeListeningAfter: true });
+      }
+
+      function handleStartCall() {
+        if (state.callStatus === 'Ringing' || state.callStatus === 'Connected' || state.callStatus === 'Transferring') {
+          return;
+        }
+
+        dom.liveTransferBanner.classList.add('hidden');
+        setCallStatus('Ringing');
+        setActivity('Standby');
+        appendTranscriptEntry('System', 'Dialing / ringing simulated line...');
+
+        state.ringTimeout = setTimeout(() => {
+          if (state.callStatus === 'Ringing') {
+            startCallImmediate();
+          }
+        }, 1100);
+      }
+
+      function handleHangUp() {
+        if (state.ringTimeout) {
+          clearTimeout(state.ringTimeout);
+          state.ringTimeout = null;
+        }
+        if (state.transferCompleteTimeout) {
+          clearTimeout(state.transferCompleteTimeout);
+          state.transferCompleteTimeout = null;
+        }
+        stopListening();
+        stopTimer();
+
+        if (synthSupported) {
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+        }
+        state.isSpeaking = false;
+        state.isMuted = false;
+        dom.muteMicLabel.textContent = 'Mute Mic';
+
+        setCallStatus('Ended');
+        setActivity('Standby');
+        appendTranscriptEntry('System', `Call ended (duration ${formatDuration(state.secondsElapsed)}).`);
+      }
+
+      function handleToggleMute() {
+        if (state.callStatus !== 'Connected') return;
+
+        state.isMuted = !state.isMuted;
+        if (state.isMuted) {
+          dom.muteMicLabel.textContent = 'Unmute Mic';
+          stopListening();
+          setActivity('Standby');
+          appendTranscriptEntry('System', 'Microphone muted.');
+        } else {
+          dom.muteMicLabel.textContent = 'Mute Mic';
+          appendTranscriptEntry('System', 'Microphone unmuted.');
+          if (!state.isSpeaking) {
+            startListening();
+          }
         }
       }
 
@@ -735,9 +1443,7 @@
                 : 'gpt-4o-mini'
             };
           }
-        } catch (_) {
-          // Ignore storage access errors in restricted frames
-        }
+        } catch (_) {}
         syncAiDrawerInputs();
         updateEngineBadge();
       }
@@ -789,10 +1495,10 @@
         if (showStatus) {
           if (state.aiSettings.useLiveAi && !state.aiSettings.apiKey) {
             dom.aiDrawerStatus.className = 'text-xs text-amber-300';
-            dom.aiDrawerStatus.textContent = 'Saved. Live AI is toggled on without a key, so the built-in engine will be used until a key is added.';
+            dom.aiDrawerStatus.textContent = 'Saved. Live AI is enabled without a key, so the built-in engine is active.';
           } else {
             dom.aiDrawerStatus.className = 'text-xs text-emerald-400';
-            dom.aiDrawerStatus.textContent = 'Settings saved locally in this browser.';
+            dom.aiDrawerStatus.textContent = 'Settings saved in localStorage.';
           }
         }
       }
@@ -811,701 +1517,18 @@
         syncAiDrawerInputs();
         updateEngineBadge();
         dom.aiDrawerStatus.className = 'text-xs text-slate-300';
-        dom.aiDrawerStatus.textContent = 'Cleared saved settings and reverted to built-in multi-topic engine.';
-      }
-
-      // --- Transcript Rendering ---
-      function appendTranscriptEntry(speaker, text) {
-        if (!text || !text.trim()) return;
-
-        const emptyPlaceholder = dom.transcriptLog.querySelector('[data-placeholder="true"]');
-        if (!dom.transcriptLog.querySelector('[data-entry="true"]')) {
-          dom.transcriptLog.innerHTML = '';
-        }
-        if (emptyPlaceholder) emptyPlaceholder.remove();
-
-        const entry = document.createElement('div');
-        entry.setAttribute('data-entry', 'true');
-
-        let badgeClass = 'bg-slate-800 text-slate-300 border-slate-700';
-        let bubbleClass = 'bg-slate-900/80 border-slate-800 text-slate-200';
-
-        if (speaker === 'Bot') {
-          badgeClass = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
-          bubbleClass = 'bg-emerald-950/25 border-emerald-500/20 text-slate-100';
-        } else if (speaker === 'Caller') {
-          badgeClass = 'bg-sky-500/15 text-sky-300 border-sky-500/30';
-          bubbleClass = 'bg-sky-950/25 border-sky-500/20 text-slate-100';
-        } else if (speaker === 'System') {
-          badgeClass = 'bg-amber-500/15 text-amber-300 border-amber-500/30';
-          bubbleClass = 'bg-slate-900/60 border-slate-800/90 text-slate-400 italic';
-        }
-
-        const headerDiv = document.createElement('div');
-        headerDiv.className = 'flex items-center justify-between gap-2 mb-1';
-
-        const tagSpan = document.createElement('span');
-        tagSpan.className = `inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${badgeClass}`;
-        tagSpan.textContent = speaker;
-
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'font-mono text-[11px] text-slate-500';
-        timeSpan.textContent = getTimestamp();
-
-        headerDiv.appendChild(tagSpan);
-        headerDiv.appendChild(timeSpan);
-
-        const bodyDiv = document.createElement('div');
-        bodyDiv.className = 'text-sm leading-relaxed break-words';
-        bodyDiv.textContent = text.trim();
-
-        entry.className = `rounded-xl border p-3 ${bubbleClass}`;
-        entry.appendChild(headerDiv);
-        entry.appendChild(bodyDiv);
-
-        dom.transcriptLog.appendChild(entry);
-        dom.transcriptLog.scrollTop = dom.transcriptLog.scrollHeight;
-      }
-
-      function clearTranscript() {
-        dom.transcriptLog.innerHTML = `
-          <div data-placeholder="true" class="text-center py-12 px-4 text-sm text-slate-500 border border-dashed border-slate-800 rounded-xl">
-            Transcript cleared. Start a call or send a caller message to log new turns.
-          </div>
-        `;
-        state.conversationHistory = [];
-        state.currentTopic = 'Open Conversation';
-        updateTurnAndTopicUI();
-      }
-
-      // --- Activity Status Indicator ---
-      function setActivity(newActivity) {
-        state.activity = newActivity;
-        dom.activityLabel.textContent = newActivity;
-
-        dom.activityBadge.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition';
-        dom.activityDot.className = 'w-2 h-2 rounded-full';
-
-        switch (newActivity) {
-          case 'Listening':
-            dom.activityBadge.classList.add('bg-sky-500/15', 'text-sky-300', 'border-sky-500/30');
-            dom.activityDot.classList.add('bg-sky-400', 'animate-pulse');
-            break;
-          case 'Bot Speaking':
-            dom.activityBadge.classList.add('bg-emerald-500/15', 'text-emerald-300', 'border-emerald-500/30');
-            dom.activityDot.classList.add('bg-emerald-400', 'animate-ping');
-            break;
-          case 'Thinking':
-            dom.activityBadge.classList.add('bg-violet-500/15', 'text-violet-300', 'border-violet-500/30');
-            dom.activityDot.classList.add('bg-violet-400', 'animate-pulse');
-            break;
-          default:
-            dom.activityBadge.classList.add('bg-slate-800/90', 'text-slate-300', 'border-slate-700');
-            dom.activityDot.classList.add('bg-slate-500');
-            break;
-        }
-      }
-
-      // --- Call State Machine ---
-      function setCallStatus(newStatus) {
-        state.callStatus = newStatus;
-        dom.callStateText.textContent = newStatus;
-
-        dom.callStateBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition';
-        dom.callStateDot.className = 'w-2 h-2 rounded-full';
-        dom.ringAnimation.classList.add('hidden');
-
-        if (newStatus === 'Idle') {
-          dom.callStateBadge.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700');
-          dom.callStateDot.classList.add('bg-slate-400');
-          dom.startCallBtn.disabled = false;
-          dom.muteMicBtn.disabled = true;
-          dom.hangUpBtn.disabled = true;
-        } else if (newStatus === 'Ringing') {
-          dom.callStateBadge.classList.add('bg-amber-500/15', 'text-amber-300', 'border-amber-500/30');
-          dom.callStateDot.classList.add('bg-amber-400', 'animate-ping');
-          dom.ringAnimation.classList.remove('hidden');
-          dom.startCallBtn.disabled = true;
-          dom.muteMicBtn.disabled = true;
-          dom.hangUpBtn.disabled = false;
-        } else if (newStatus === 'Connected') {
-          dom.callStateBadge.classList.add('bg-emerald-500/15', 'text-emerald-300', 'border-emerald-500/30');
-          dom.callStateDot.classList.add('bg-emerald-400');
-          dom.ringAnimation.classList.remove('hidden');
-          dom.startCallBtn.disabled = true;
-          dom.muteMicBtn.disabled = false;
-          dom.hangUpBtn.disabled = false;
-        } else if (newStatus === 'Ended') {
-          dom.callStateBadge.classList.add('bg-rose-500/15', 'text-rose-300', 'border-rose-500/30');
-          dom.callStateDot.classList.add('bg-rose-400');
-          dom.startCallBtn.disabled = false;
-          dom.muteMicBtn.disabled = true;
-          dom.hangUpBtn.disabled = true;
-        }
-      }
-
-      function startTimer() {
-        stopTimer();
-        state.secondsElapsed = 0;
-        dom.callTimer.textContent = formatDuration(0);
-        state.timerInterval = setInterval(() => {
-          state.secondsElapsed += 1;
-          dom.callTimer.textContent = formatDuration(state.secondsElapsed);
-        }, 1000);
-      }
-
-      function stopTimer() {
-        if (state.timerInterval) {
-          clearInterval(state.timerInterval);
-          state.timerInterval = null;
-        }
-      }
-
-      // --- Speech Synthesis (Bot Voice Output) ---
-      const synthSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
-
-      function populateVoices() {
-        if (!synthSupported) {
-          dom.voiceSelect.innerHTML = '<option value="">speechSynthesis not supported</option>';
-          dom.ttsStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-400';
-          dom.ttsSupportText.textContent = 'Unavailable';
-          return;
-        }
-
-        try {
-          const voices = window.speechSynthesis.getVoices() || [];
-          state.voices = voices;
-
-          dom.ttsStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
-          dom.ttsSupportText.textContent = `${voices.length} voice${voices.length === 1 ? '' : 's'} ready`;
-
-          if (!voices.length) {
-            dom.voiceSelect.innerHTML = '<option value="">Default System Voice</option>';
-            return;
-          }
-
-          const previousSelection = dom.voiceSelect.value;
-          dom.voiceSelect.innerHTML = '';
-
-          voices.forEach((voice, idx) => {
-            const option = document.createElement('option');
-            option.value = String(idx);
-            const langTag = voice.lang ? ` (${voice.lang})` : '';
-            const defaultTag = voice.default ? ' — Default' : '';
-            option.textContent = `${voice.name}${langTag}${defaultTag}`;
-            dom.voiceSelect.appendChild(option);
-          });
-
-          if (previousSelection && Number(previousSelection) < voices.length) {
-            dom.voiceSelect.value = previousSelection;
-          } else {
-            const englishIdx = voices.findIndex((v) => /en/i.test(v.lang));
-            if (englishIdx >= 0) dom.voiceSelect.value = String(englishIdx);
-          }
-        } catch (err) {
-          appendTranscriptEntry('System', `Unable to load speech voices: ${err.message}`);
-        }
-      }
-
-      function speakBotMessage(text, options = {}) {
-        const spokenText = sanitizeForSpeech(text);
-        if (!spokenText) return;
-
-        const { logToTranscript = true, resumeListeningAfter = true } = options;
-
-        if (logToTranscript) {
-          appendTranscriptEntry('Bot', spokenText);
-          state.conversationHistory.push({ role: 'bot', text: spokenText });
-          updateTurnAndTopicUI();
-        }
-
-        if (!synthSupported) {
-          setActivity(state.callStatus === 'Connected' ? 'Listening' : 'Standby');
-          return;
-        }
-
-        try {
-          const wasListening = state.recognitionActive;
-          if (wasListening && state.recognition) {
-            state.shouldListen = false;
-            try { state.recognition.stop(); } catch (_) {}
-          }
-
-          window.speechSynthesis.cancel();
-
-          const utterance = new SpeechSynthesisUtterance(spokenText);
-          const selectedIdx = Number(dom.voiceSelect.value);
-          if (!Number.isNaN(selectedIdx) && state.voices[selectedIdx]) {
-            utterance.voice = state.voices[selectedIdx];
-          }
-          utterance.rate = parseFloat(dom.rateSlider.value) || 1.0;
-          utterance.pitch = parseFloat(dom.pitchSlider.value) || 1.0;
-
-          utterance.onstart = () => {
-            state.isSpeaking = true;
-            setActivity('Bot Speaking');
-          };
-
-          utterance.onend = () => {
-            state.isSpeaking = false;
-            if (state.callStatus === 'Connected' && resumeListeningAfter && !state.isMuted) {
-              startListening();
-            } else {
-              setActivity('Standby');
-            }
-          };
-
-          utterance.onerror = (event) => {
-            state.isSpeaking = false;
-            if (event.error !== 'interrupted' && event.error !== 'canceled') {
-              appendTranscriptEntry('System', `TTS notice (${event.error}). Transcript still logged.`);
-            }
-            if (state.callStatus === 'Connected' && resumeListeningAfter && !state.isMuted) {
-              startListening();
-            } else {
-              setActivity('Standby');
-            }
-          };
-
-          setActivity('Bot Speaking');
-          window.speechSynthesis.speak(utterance);
-        } catch (err) {
-          state.isSpeaking = false;
-          appendTranscriptEntry('System', `Speech synthesis error: ${err.message}`);
-          setActivity(state.callStatus === 'Connected' ? 'Listening' : 'Standby');
-        }
-      }
-
-      // --- Speech Recognition (Caller Microphone Input) ---
-      const SpeechRecognitionCtor =
-        typeof window !== 'undefined'
-          ? window.SpeechRecognition || window.webkitSpeechRecognition || null
-          : null;
-
-      function initSpeechRecognition() {
-        if (!SpeechRecognitionCtor) {
-          dom.sttStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
-          dom.sttSupportText.textContent = 'Unavailable (use text fallback)';
-          return;
-        }
-
-        dom.sttStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
-        dom.sttSupportText.textContent = 'Supported';
-
-        try {
-          const rec = new SpeechRecognitionCtor();
-          rec.continuous = false;
-          rec.interimResults = false;
-          rec.lang = 'en-US';
-
-          rec.onstart = () => {
-            state.recognitionActive = true;
-            if (!state.isSpeaking && !state.isMuted && state.callStatus === 'Connected') {
-              setActivity('Listening');
-            }
-          };
-
-          rec.onresult = (event) => {
-            const transcript = event.results?.[0]?.[0]?.transcript || '';
-            if (transcript.trim()) {
-              handleCallerUtterance(transcript.trim());
-            }
-          };
-
-          rec.onerror = (event) => {
-            state.recognitionActive = false;
-            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-              appendTranscriptEntry('System', 'Microphone permission denied or blocked in this context. You can still type caller turns below.');
-              state.shouldListen = false;
-              setActivity('Standby');
-            } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
-              appendTranscriptEntry('System', `Speech recognition status: ${event.error}`);
-            }
-          };
-
-          rec.onend = () => {
-            state.recognitionActive = false;
-            if (state.callStatus === 'Connected' && state.shouldListen && !state.isMuted && !state.isSpeaking) {
-              setTimeout(() => {
-                if (state.callStatus === 'Connected' && state.shouldListen && !state.isMuted && !state.isSpeaking) {
-                  startListening();
-                }
-              }, 250);
-            } else if (state.callStatus !== 'Connected') {
-              setActivity('Standby');
-            }
-          };
-
-          state.recognition = rec;
-        } catch (err) {
-          appendTranscriptEntry('System', `Could not initialize SpeechRecognition: ${err.message}`);
-        }
-      }
-
-      function startListening() {
-        if (!state.recognition || state.isMuted || state.callStatus !== 'Connected' || state.isSpeaking) {
-          return;
-        }
-        state.shouldListen = true;
-        if (state.recognitionActive) {
-          setActivity('Listening');
-          return;
-        }
-        try {
-          state.recognition.start();
-          setActivity('Listening');
-        } catch (_) {}
-      }
-
-      function stopListening() {
-        state.shouldListen = false;
-        if (state.recognition && state.recognitionActive) {
-          try {
-            state.recognition.stop();
-          } catch (_) {}
-        }
-        state.recognitionActive = false;
-      }
-
-      // --- Topic Detection & Built-In Multi-Topic Conversational Engine ---
-      function extractTopicSubject(text) {
-        const clean = (text || '').trim();
-        const lower = clean.toLowerCase();
-
-        // Check curated domains first
-        for (const domain of TOPIC_DOMAINS) {
-          if (domain.keywords.some((kw) => new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(lower))) {
-            return { topic: domain.id, domain };
-          }
-        }
-
-        // Extract dynamic subject phrase for open-ended topics ("tell me about X", "what do you think of X", "how does X work")
-        const patterns = [
-          /(?:about|on|regarding|concerning|into)\s+([a-z0-9\s-]{2,42}?)(?:[?.!,]|$)/i,
-          /(?:what is|what are|how does|how do|why is|why are)\s+([a-z0-9\s-]{2,36}?)(?:[?.!,]|$)/i
-        ];
-
-        for (const pat of patterns) {
-          const match = clean.match(pat);
-          if (match && match[1]) {
-            const candidate = match[1]
-              .replace(/^(the|a|an|my|our|your|some|this|that)\s+/i, '')
-              .replace(/\b(work|works|matter|matters|happen|happens)\b$/i, '')
-              .trim();
-            if (candidate.length >= 2 && candidate.split(/\s+/).length <= 5) {
-              const titleCased = candidate.replace(/\b\w/g, (c) => c.toUpperCase());
-              return { topic: titleCased, domain: null };
-            }
-          }
-        }
-
-        return { topic: state.currentTopic || 'Open Conversation', domain: null };
-      }
-
-      function buildSystemPrompt() {
-        const modeKey = dom.confidenceModeSelect.value || 'expert';
-        const mode = CONFIDENCE_MODES[modeKey] || CONFIDENCE_MODES.expert;
-        const greeting = dom.greetingInput.value.trim() || SCRIPT_TEMPLATES.assistant.greeting;
-        const persona = dom.personaInput.value.trim() || SCRIPT_TEMPLATES.assistant.persona;
-
-        return [
-          `Opening greeting used on this call: "${greeting}"`,
-          `Persona & script instructions: ${persona}`,
-          `Speaking style mode (${mode.label}): ${mode.instruction}`,
-          'Voice delivery rules: Respond like a confident speaker on a live voice call. Write 2 to 4 natural spoken sentences. Never use markdown asterisks, bullet symbols, or numbered lists that sound awkward when read aloud.'
-        ].join('\n');
-      }
-
-      function generateBuiltInReply(callerText) {
-        const clean = callerText.trim();
-        const lower = clean.toLowerCase();
-        const modeKey = dom.confidenceModeSelect.value || 'expert';
-        const persona = (dom.personaInput.value || '').toLowerCase();
-
-        // Detect topic shift or continuation
-        const detected = extractTopicSubject(clean);
-        const topicChanged = detected.topic !== state.currentTopic && detected.topic !== 'Open Conversation';
-        if (detected.topic) {
-          state.currentTopic = detected.topic;
-        }
-        updateTurnAndTopicUI();
-
-        // Goodbye / Hang-up cues
-        if (/\b(bye|goodbye|hang up|that's all|no thanks|talk later|wrap up)\b/.test(lower)) {
-          return `That was a great conversation${state.currentTopic !== 'Open Conversation' ? ` around ${state.currentTopic}` : ''}. Thanks for calling in today, and feel free to pick up anytime.`;
-        }
-
-        // Human / Transfer cues
-        if (/\b(agent|human|representative|manager|supervisor|transfer|speak to someone)\b/.test(lower)) {
-          return "Happy to help get you connected with a person. Before I hand that off, is there a quick detail or preference you want noted so you do not have to repeat yourself?";
-        }
-
-        // Scheduling / Appointment script support when active
-        if ((persona.includes('scheduling') || persona.includes('appointment')) && /\b(appointment|reschedule|schedule|time|tomorrow|confirm|slot)\b/.test(lower)) {
-          if (/\b(reschedule|change|later|different time)\b/.test(lower)) {
-            return "We can easily adjust that window. Would a morning slot or an afternoon opening work better for your schedule?";
-          }
-          if (/\b(yes|confirm|sounds good|works for me|sure)\b/.test(lower)) {
-            return "You are all set with that time confirmed. Is there anything else on your agenda I can help clarify before we finish?";
-          }
-          return "I can lock in or shift that slot for you right now. What day and time frame feels easiest on your end?";
-        }
-
-        // Insurance follow-up script support when active
-        if (persona.includes('insurance') && /\b(quote|policy|coverage|deductible|premium|claim)\b/.test(lower)) {
-          return "Looking at coverage comes down to balancing predictable monthly costs against out-of-pocket protection when something unexpected happens. Would you rather keep monthly payments lean or maximize coverage limits?";
-        }
-
-        // Pushback / Disagreement / Clarification handling
-        const isPushback = /\b(disagree|not sure|doubt|push back|counter|wrong|actually|wait|clarify|what do you mean)\b/.test(lower);
-        const recentBotTurns = state.conversationHistory.filter((m) => m.role === 'bot').length;
-
-        // Domain-specific confident synthesis
-        if (detected.domain) {
-          const d = detected.domain;
-          if (isPushback) {
-            if (modeKey === 'debate') {
-              return `Fair pushback—that is exactly where people challenge the conventional view on ${d.id.toLowerCase()}. ${d.tradeoff} ${d.followup}`;
-            }
-            return `Good point to press on. ${d.tradeoff} Looking at ${d.id.toLowerCase()} from that angle, ${d.followup.charAt(0).toLowerCase() + d.followup.slice(1)}`;
-          }
-
-          if (modeKey === 'socratic') {
-            return `${d.lead} ${d.followup}`;
-          }
-          if (modeKey === 'executive') {
-            return `${d.lead} ${d.tradeoff}`;
-          }
-          if (modeKey === 'debate') {
-            return `${d.lead} At the same time, ${d.tradeoff.charAt(0).toLowerCase() + d.tradeoff.slice(1)} ${d.followup}`;
-          }
-          return `${d.lead} ${d.tradeoff} ${d.followup}`;
-        }
-
-        // General open-ended any-topic confident response
-        const subjectLabel = state.currentTopic && state.currentTopic !== 'Open Conversation'
-          ? state.currentTopic
-          : 'that';
-
-        if (isPushback) {
-          if (modeKey === 'socratic') {
-            return `That pushes right to the heart of ${subjectLabel}. What evidence or real-world example makes you lean that way, and where might the strongest counterargument sit?`;
-          }
-          if (modeKey === 'debate') {
-            return `I respect that pushback on ${subjectLabel}. On the flip side, a strong counter-view is that incentives and context often flip the outcome faster than expected. How would you answer that?`;
-          }
-          return `Fair challenge on ${subjectLabel}. Often the real difference comes down to context, timing, and which trade-off matters most to you right now. Which part of that picture would you like to test next?`;
-        }
-
-        if (modeKey === 'socratic') {
-          return `With ${subjectLabel}, the clearest place to start is defining what success actually looks like and what assumption you are relying on. ${topicChanged ? `What sparked your interest in ${subjectLabel} today?` : 'What feels most uncertain about it right now?'}`;
-        }
-
-        if (modeKey === 'executive') {
-          return `On ${subjectLabel}, the bottom line is focusing on high-leverage fundamentals first while keeping an eye on execution risk and cost. The practical next step is picking one concrete test or decision to make next.`;
-        }
-
-        if (modeKey === 'debate') {
-          return `Talking through ${subjectLabel} is interesting because there is a strong case for leaning in boldly, alongside a real argument for pacing and restraint. Where do you stand on that balance right now?`;
-        }
-
-        // Conversational Expert default
-        if (recentBotTurns <= 1 && /^(hi|hello|hey|good morning|good afternoon|good evening)\b/i.test(clean) && clean.split(/\s+/).length <= 4) {
-          return "Hey there, good to connect. Throw any topic, question, or scenario my way and we can dig right in.";
-        }
-
-        return `From a practical standpoint, ${subjectLabel} makes the most sense when you break it down into its core driver, its main trade-off, and how it plays out in real life. ${topicChanged ? `What aspect of ${subjectLabel} do you want to focus on first?` : 'Where would you like to take this next?'}`;
-      }
-
-      // --- Optional Live AI Request with Seamless Fallback ---
-      async function callLiveAi(callerText) {
-        const { provider, apiKey, endpoint, model } = state.aiSettings;
-        if (!apiKey) {
-          throw new Error('Missing API key');
-        }
-
-        const systemInstruction = buildSystemPrompt();
-        const historySlice = state.conversationHistory.slice(-10);
-
-        if (provider === 'gemini') {
-          const contents = historySlice.map((msg) => ({
-            role: msg.role === 'bot' ? 'model' : 'user',
-            parts: [{ text: msg.text }]
-          }));
-          if (!contents.length || contents[contents.length - 1].parts[0].text !== callerText) {
-            contents.push({ role: 'user', parts: [{ text: callerText }] });
-          }
-
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: { parts: [{ text: systemInstruction }] },
-              contents,
-              generationConfig: {
-                temperature: 0.75,
-                maxOutputTokens: 220
-              }
-            })
-          });
-
-          if (!response.ok) {
-            throw new Error(`Gemini HTTP ${response.status}`);
-          }
-
-          const data = await response.json();
-          const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          if (!replyText.trim()) {
-            throw new Error('Empty Gemini response');
-          }
-          return sanitizeForSpeech(replyText);
-        }
-
-        // OpenAI-compatible Chat Completions endpoint
-        const messages = [
-          { role: 'system', content: systemInstruction },
-          ...historySlice.map((msg) => ({
-            role: msg.role === 'bot' ? 'assistant' : 'user',
-            content: msg.text
-          }))
-        ];
-        if (messages[messages.length - 1].content !== callerText) {
-          messages.push({ role: 'user', content: callerText });
-        }
-
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: model || 'gpt-4o-mini',
-            messages,
-            temperature: 0.75,
-            max_tokens: 220
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`Endpoint HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
-        const replyText = data?.choices?.[0]?.message?.content || '';
-        if (!replyText.trim()) {
-          throw new Error('Empty chat completion response');
-        }
-        return sanitizeForSpeech(replyText);
-      }
-
-      async function generateBotReplySmart(callerText) {
-        const liveEnabled = state.aiSettings.useLiveAi && Boolean(state.aiSettings.apiKey.trim());
-        if (liveEnabled && navigator.onLine !== false) {
-          try {
-            return await callLiveAi(callerText);
-          } catch (_) {
-            // Seamless fallback to built-in multi-topic engine without disrupting the call
-            return generateBuiltInReply(callerText);
-          }
-        }
-        return generateBuiltInReply(callerText);
-      }
-
-      async function handleCallerUtterance(text) {
-        const clean = (text || '').trim();
-        if (!clean) return;
-
-        if (state.callStatus === 'Idle' || state.callStatus === 'Ended') {
-          startCallImmediate();
-        }
-
-        appendTranscriptEntry('Caller', clean);
-        state.conversationHistory.push({ role: 'user', text: clean });
-        updateTurnAndTopicUI();
-
-        setActivity('Thinking');
-
-        const reply = await generateBotReplySmart(clean);
-        if (state.callStatus === 'Ended') return;
-
-        speakBotMessage(reply, { logToTranscript: true, resumeListeningAfter: true });
-      }
-
-      // --- Call Lifecycle Actions ---
-      function startCallImmediate() {
-        if (state.ringTimeout) {
-          clearTimeout(state.ringTimeout);
-          state.ringTimeout = null;
-        }
-        state.isMuted = false;
-        dom.muteMicLabel.textContent = 'Mute Mic';
-        setCallStatus('Connected');
-        startTimer();
-        appendTranscriptEntry('System', 'Call connected.');
-
-        const greeting = dom.greetingInput.value.trim() || SCRIPT_TEMPLATES.assistant.greeting;
-        speakBotMessage(greeting, { logToTranscript: true, resumeListeningAfter: true });
-      }
-
-      function handleStartCall() {
-        if (state.callStatus === 'Ringing' || state.callStatus === 'Connected') return;
-
-        setCallStatus('Ringing');
-        setActivity('Standby');
-        appendTranscriptEntry('System', 'Dialing / ringing simulated line...');
-
-        state.ringTimeout = setTimeout(() => {
-          if (state.callStatus === 'Ringing') {
-            startCallImmediate();
-          }
-        }, 1200);
-      }
-
-      function handleHangUp() {
-        if (state.ringTimeout) {
-          clearTimeout(state.ringTimeout);
-          state.ringTimeout = null;
-        }
-        stopListening();
-        stopTimer();
-
-        if (synthSupported) {
-          try { window.speechSynthesis.cancel(); } catch (_) {}
-        }
-        state.isSpeaking = false;
-        state.isMuted = false;
-        dom.muteMicLabel.textContent = 'Mute Mic';
-
-        setCallStatus('Ended');
-        setActivity('Standby');
-        appendTranscriptEntry('System', `Call ended (duration ${formatDuration(state.secondsElapsed)}).`);
-      }
-
-      function handleToggleMute() {
-        if (state.callStatus !== 'Connected') return;
-
-        state.isMuted = !state.isMuted;
-        if (state.isMuted) {
-          dom.muteMicLabel.textContent = 'Unmute Mic';
-          stopListening();
-          setActivity('Standby');
-          appendTranscriptEntry('System', 'Microphone muted.');
-        } else {
-          dom.muteMicLabel.textContent = 'Mute Mic';
-          appendTranscriptEntry('System', 'Microphone unmuted.');
-          if (!state.isSpeaking) {
-            startListening();
-          }
-        }
+        dom.aiDrawerStatus.textContent = 'Cleared saved settings and reverted to built-in engine.';
       }
 
       // --- Event Listeners ---
       dom.startCallBtn.addEventListener('click', handleStartCall);
       dom.hangUpBtn.addEventListener('click', handleHangUp);
       dom.muteMicBtn.addEventListener('click', handleToggleMute);
+      dom.transferNowBtn.addEventListener('click', () => executeLiveTransfer('Transfer Now Override'));
+      dom.resetAfterTransferBtn.addEventListener('click', resetTransferBannerAndReady);
       dom.clearTranscriptBtn.addEventListener('click', clearTranscript);
+
+      dom.transferTargetInput.addEventListener('input', syncTransferTargetUI);
 
       dom.openAiDrawerBtn.addEventListener('click', openAiDrawer);
       dom.closeAiDrawerBtn.addEventListener('click', closeAiDrawer);
@@ -1522,25 +1545,19 @@
         saveAiSettings(false);
         if (!state.aiSettings.apiKey) {
           dom.aiDrawerStatus.className = 'text-xs text-amber-300';
-          dom.aiDrawerStatus.textContent = 'Enter an API key first to test a live connection.';
+          dom.aiDrawerStatus.textContent = 'Enter an API key first to test live AI.';
           return;
         }
         dom.aiDrawerStatus.className = 'text-xs text-sky-300';
-        dom.aiDrawerStatus.textContent = 'Testing live connection...';
+        dom.aiDrawerStatus.textContent = 'Testing connection...';
         try {
-          const sample = await callLiveAi('Say hello in one confident sentence.');
+          const sample = await callLiveAi('Say hello in one brief sentence.');
           dom.aiDrawerStatus.className = 'text-xs text-emerald-400';
           dom.aiDrawerStatus.textContent = `Connected: "${sample}"`;
         } catch (err) {
           dom.aiDrawerStatus.className = 'text-xs text-amber-300';
-          dom.aiDrawerStatus.textContent = `Live check failed (${err.message}). Built-in engine will still handle calls seamlessly.`;
+          dom.aiDrawerStatus.textContent = `Live check failed (${err.message}). Built-in fallback engine remains active.`;
         }
-      });
-
-      dom.confidenceModeSelect.addEventListener('change', () => {
-        const mode = CONFIDENCE_MODES[dom.confidenceModeSelect.value] || CONFIDENCE_MODES.expert;
-        dom.confidenceModeDesc.textContent = mode.description;
-        appendTranscriptEntry('System', `Switched confidence mode to "${mode.label}".`);
       });
 
       dom.rateSlider.addEventListener('input', () => {
@@ -1552,30 +1569,30 @@
       });
 
       dom.testVoiceBtn.addEventListener('click', () => {
-        const sample = dom.greetingInput.value.trim() || 'Hello! Testing voice synthesis rate and pitch.';
+        const sample = dom.openingScriptInput.value.trim() || SCRIPT_PRESETS.default_drop.opening;
         speakBotMessage(sample, {
           logToTranscript: false,
           resumeListeningAfter: state.callStatus === 'Connected' && !state.isMuted
         });
       });
 
-      document.querySelectorAll('.template-btn').forEach((btn) => {
+      document.querySelectorAll('.preset-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
-          const key = btn.getAttribute('data-template');
-          const tpl = SCRIPT_TEMPLATES[key];
-          if (tpl) {
-            dom.greetingInput.value = tpl.greeting;
-            dom.personaInput.value = tpl.persona;
-            appendTranscriptEntry('System', `Applied "${btn.querySelector('div')?.textContent || key}" script template.`);
+          const key = btn.getAttribute('data-preset');
+          const preset = SCRIPT_PRESETS[key];
+          if (preset) {
+            dom.openingScriptInput.value = preset.opening;
+            dom.personaInput.value = preset.persona;
+            appendTranscriptEntry('System', `Applied "${btn.querySelector('div')?.textContent || key}" script preset.`);
           }
         });
       });
 
-      document.querySelectorAll('.topic-prompt-btn').forEach((btn) => {
+      document.querySelectorAll('.quick-caller-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
-          const promptText = btn.getAttribute('data-topic-prompt') || '';
-          if (promptText) {
-            handleCallerUtterance(promptText);
+          const callerLine = btn.getAttribute('data-quick-caller') || '';
+          if (callerLine) {
+            handleCallerUtterance(callerLine);
           }
         });
       });
@@ -1589,6 +1606,7 @@
       });
 
       // --- Initialization ---
+      syncTransferTargetUI();
       loadAiSettings();
       populateVoices();
       if (synthSupported && typeof window.speechSynthesis.addEventListener === 'function') {
@@ -1597,7 +1615,7 @@
       initSpeechRecognition();
       setCallStatus('Idle');
       setActivity('Standby');
-      updateTurnAndTopicUI();
+      updateTurnCounter();
     })();
   </script>
 </body>
