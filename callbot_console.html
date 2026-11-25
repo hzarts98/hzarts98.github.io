@@ -27,7 +27,7 @@
     };
   </script>
   <style>
-    /* Custom subtle scrollbars for transcript & logs */
+    /* Custom subtle scrollbars for transcript, drawers, and logs */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -64,7 +64,7 @@
     }
   </style>
 </head>
-<body class="bg-slatebg text-slate-100 font-sans min-h-screen antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+<body class="bg-slatebg text-slate-100 font-sans min-h-screen antialiased selection:bg-emerald-500/30 selection:text-emerald-200 overflow-x-hidden">
   <!-- Main Application Wrapper -->
   <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5">
 
@@ -73,7 +73,7 @@
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <!-- Brand + State Badge + Timer -->
         <div class="flex flex-wrap items-center gap-3 sm:gap-4">
-          <div class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+          <div class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0">
             <span id="ringAnimation" class="hidden absolute inset-0 rounded-xl bg-emerald-400/30 ring-pulse"></span>
             <!-- Phone / Bot Icon -->
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -82,14 +82,18 @@
           </div>
 
           <div>
-            <div class="flex items-center gap-2.5">
+            <div class="flex flex-wrap items-center gap-2.5">
               <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">CallBot Console</h1>
               <span id="callStateBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
                 <span id="callStateDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
                 <span id="callStateText">Idle</span>
               </span>
+              <span id="engineModePill" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">
+                <span id="engineModeDot" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span id="engineModeLabel">Built-In Multi-Topic Engine</span>
+              </span>
             </div>
-            <p class="text-xs text-slate-400 mt-0.5">Browser Voice Call Simulator • Web Speech API &amp; Script Engine</p>
+            <p class="text-xs text-slate-400 mt-0.5">Browser Voice Call Simulator • Web Speech API, Confidence Modes &amp; Optional Live AI</p>
           </div>
 
           <!-- Call Timer -->
@@ -102,8 +106,8 @@
           </div>
         </div>
 
-        <!-- Call Controls -->
-        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+        <!-- Call Controls + AI Settings Drawer Trigger -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
           <button id="startCallBtn" type="button" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 transition shadow-lg shadow-emerald-500/20 cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
@@ -111,7 +115,7 @@
             <span>Start Call</span>
           </button>
 
-          <button id="muteMicBtn" type="button" disabled class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none text-slate-100 border border-slate-700 transition cursor-pointer">
+          <button id="muteMicBtn" type="button" disabled class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none text-slate-100 border border-slate-700 transition cursor-pointer">
             <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
               <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -121,12 +125,20 @@
             <span id="muteMicLabel">Mute Mic</span>
           </button>
 
-          <button id="hangUpBtn" type="button" disabled class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:pointer-events-none text-white transition shadow-lg shadow-rose-600/20 cursor-pointer">
+          <button id="hangUpBtn" type="button" disabled class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:pointer-events-none text-white transition shadow-lg shadow-rose-600/20 cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"></path>
               <line x1="23" y1="1" x2="1" y2="23"></line>
             </svg>
             <span>Hang Up</span>
+          </button>
+
+          <button id="openAiDrawerBtn" type="button" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-slate-800/90 hover:bg-slate-700 text-violet-300 border border-violet-500/30 transition cursor-pointer" title="Configure Optional Live LLM API Settings">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>AI Settings</span>
           </button>
         </div>
       </div>
@@ -143,31 +155,43 @@
             Speech Recognition: <strong id="sttSupportText" class="font-medium">Checking...</strong>
           </span>
         </div>
-        <span class="text-slate-400">Tip: Use the text fallback box below anytime if your mic is muted or unavailable.</span>
+        <span class="text-slate-400">Works zero-config on any topic—or toggle Live AI for LLM responses with automatic fallback.</span>
       </div>
     </header>
 
     <!-- Main 12-Column Responsive Workspace -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-      <!-- Left Column: Script & Voice Settings (5 cols) -->
+      <!-- Left Column: Persona, Confidence Mode, Topics & Voice Settings (5 cols) -->
       <section class="lg:col-span-5 space-y-5">
-        <!-- Script & Persona Card -->
+        <!-- Script, Mode & Persona Card -->
         <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
-          <div class="flex items-center justify-between gap-2">
+          <div class="flex items-start justify-between gap-2">
             <div>
-              <h2 class="text-base font-semibold text-white">Bot Script &amp; Persona</h2>
-              <p class="text-xs text-slate-400">Customize greeting, behavior prompts, or apply a preset.</p>
+              <h2 class="text-base font-semibold text-white">Bot Script, Mode &amp; Persona</h2>
+              <p class="text-xs text-slate-400">Shape how the bot speaks across any subject during the call.</p>
             </div>
+          </div>
+
+          <!-- Topic & Confidence Mode Selector -->
+          <div>
+            <label for="confidenceModeSelect" class="block text-xs font-medium text-slate-300 mb-1.5">Topic &amp; Confidence Mode</label>
+            <select id="confidenceModeSelect" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 px-3 py-2.5 outline-none transition">
+              <option value="expert">Conversational Expert — Composed, clear, insightful &amp; natural</option>
+              <option value="socratic">Socratic Coach — Sharp probing questions &amp; mental clarity</option>
+              <option value="executive">Executive Briefing — Crisp takeaways, trade-offs &amp; next steps</option>
+              <option value="debate">Debate Partner — Articulate counterpoints, steelmanning &amp; nuance</option>
+            </select>
+            <p id="confidenceModeDesc" class="text-[11px] text-slate-400 mt-1.5">Speaks with calm authority, distills complexity into clean spoken sentences, and asks focused follow-ups.</p>
           </div>
 
           <!-- Quick-Insert Script Templates -->
           <div>
-            <label class="block text-xs font-medium uppercase tracking-wider text-slate-400 mb-2">Quick-Insert Templates</label>
+            <label class="block text-xs font-medium uppercase tracking-wider text-slate-400 mb-2">Quick-Insert Call Templates</label>
             <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-2">
               <button type="button" data-template="assistant" class="template-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 transition cursor-pointer">
-                <div class="text-xs font-semibold text-emerald-400">General Assistant</div>
-                <div class="text-[11px] text-slate-400 truncate mt-0.5">Helpful intake &amp; routing</div>
+                <div class="text-xs font-semibold text-emerald-400">Any-Topic Host</div>
+                <div class="text-[11px] text-slate-400 truncate mt-0.5">Open dialogue &amp; deep dives</div>
               </button>
               <button type="button" data-template="appointment" class="template-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-sky-500/50 transition cursor-pointer">
                 <div class="text-xs font-semibold text-sky-400">Callback Check-In</div>
@@ -180,16 +204,38 @@
             </div>
           </div>
 
+          <!-- Quick-Try Topic Prompts -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-medium uppercase tracking-wider text-slate-400">Quick-Try Topic Prompts</label>
+              <span class="text-[11px] text-slate-500">Click to test immediately</span>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button" data-topic-prompt="Explain quantum computing in plain spoken terms and why error correction matters so much right now." class="topic-prompt-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-emerald-500/40 transition cursor-pointer">
+                Quantum Computing
+              </button>
+              <button type="button" data-topic-prompt="Give me a confident negotiation strategy when pushing back on price without losing rapport." class="topic-prompt-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-emerald-500/40 transition cursor-pointer">
+                Negotiation Strategy
+              </button>
+              <button type="button" data-topic-prompt="What are the biggest engineering and human hurdles in deep space exploration over the next decade?" class="topic-prompt-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-emerald-500/40 transition cursor-pointer">
+                Space Exploration
+              </button>
+              <button type="button" data-topic-prompt="How can I apply Stoicism during high-pressure days when everything feels urgent?" class="topic-prompt-btn px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-emerald-500/40 transition cursor-pointer">
+                Stoicism
+              </button>
+            </div>
+          </div>
+
           <!-- Opening Greeting -->
           <div>
             <label for="greetingInput" class="block text-xs font-medium text-slate-300 mb-1.5">Opening Greeting</label>
-            <textarea id="greetingInput" rows="2" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 p-3 outline-none transition resize-none">Hello! This is Alex, your automated voice assistant. How can I help you on this call today?</textarea>
+            <textarea id="greetingInput" rows="2" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 p-3 outline-none transition resize-none">Hello! This is Alex. Whether we are diving into science, strategy, philosophy, or everyday decisions, what is on your mind today?</textarea>
           </div>
 
           <!-- Bot Persona / Script Prompts -->
           <div>
             <label for="personaInput" class="block text-xs font-medium text-slate-300 mb-1.5">Bot Persona &amp; Script Instructions</label>
-            <textarea id="personaInput" rows="4" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 p-3 outline-none transition resize-y">Keep responses concise, polite, and easy to understand over a phone call. Ask clarifying questions when needed, confirm details clearly, and offer next steps or a transfer if requested.</textarea>
+            <textarea id="personaInput" rows="4" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 p-3 outline-none transition resize-y">Speak like a poised, articulate conversationalist who can discuss any topic naturally over a phone call. Keep replies concise and punchy for voice audio, highlight key trade-offs without sounding stiff or robotic, and ask engaging follow-up questions.</textarea>
           </div>
         </div>
 
@@ -250,7 +296,7 @@
           <div class="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-slate-800">
             <div>
               <h2 class="text-base font-semibold text-white">Live Call Transcript</h2>
-              <p class="text-xs text-slate-400">Real-time conversation feed with speaker tags and timestamps.</p>
+              <p class="text-xs text-slate-400">Real-time conversation feed with speaker tags, timestamps &amp; topic tracking.</p>
             </div>
 
             <!-- Live Activity Indicator Pill -->
@@ -266,10 +312,21 @@
             </div>
           </div>
 
+          <!-- Active Topic & Context Strip -->
+          <div class="mt-3 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800/90 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-slate-400 shrink-0">Current Thread:</span>
+              <span id="currentTopicLabel" class="font-medium text-emerald-300 truncate">Open Conversation</span>
+            </div>
+            <div class="flex items-center gap-2 text-[11px] text-slate-400">
+              <span id="turnCountLabel" class="font-mono">0 turns</span>
+            </div>
+          </div>
+
           <!-- Transcript Scroll Container -->
-          <div id="transcriptLog" class="mt-4 h-80 sm:h-96 overflow-y-auto space-y-3 pr-1">
-            <div class="text-center py-12 px-4 text-sm text-slate-500 border border-dashed border-slate-800 rounded-xl">
-              No active call transcript yet. Click <strong class="text-slate-300">Start Call</strong> to begin a simulated voice session.
+          <div id="transcriptLog" class="mt-3.5 h-80 sm:h-96 overflow-y-auto space-y-3 pr-1">
+            <div data-placeholder="true" class="text-center py-12 px-4 text-sm text-slate-500 border border-dashed border-slate-800 rounded-xl">
+              No active call transcript yet. Click <strong class="text-slate-300">Start Call</strong>, pick a topic prompt, or send a caller message to begin.
             </div>
           </div>
 
@@ -278,7 +335,7 @@
             <input
               id="textUtteranceInput"
               type="text"
-              placeholder="Type a simulated caller message (works even without a microphone)..."
+              placeholder="Ask about any topic or type a simulated caller message (works without a mic)..."
               class="flex-1 rounded-xl bg-slate-950/90 border border-slate-700 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 text-sm text-slate-100 px-3.5 py-2.5 outline-none transition"
             />
             <button
@@ -303,21 +360,21 @@
               <line x1="12" y1="16" x2="12" y2="12"></line>
               <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
-            <h2 class="text-sm font-semibold text-white">Browser Permissions &amp; Softphone / SIP / PSTN Routing Notes</h2>
+            <h2 class="text-sm font-semibold text-white">Browser Permissions, AI Keys &amp; Softphone / SIP / PSTN Routing Notes</h2>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs leading-relaxed text-slate-300">
             <div class="bg-slate-900/75 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
-              <div class="font-semibold text-emerald-400">1. HTTPS / Localhost &amp; Mic Permissions</div>
+              <div class="font-semibold text-emerald-400">1. HTTPS / Localhost, Mic &amp; Browser AI Keys</div>
               <p class="text-slate-400">
-                Browsers require a secure context (<code class="text-slate-200 font-mono">https://</code> or <code class="text-slate-200 font-mono">http://localhost</code>) and explicit microphone permission for <code class="text-slate-200 font-mono">SpeechRecognition</code>. Embedded previews may restrict mic access—use the <strong class="text-slate-200">Send Caller Turn</strong> input box whenever testing in a sandboxed frame.
+                Browsers require a secure context (<code class="text-slate-200 font-mono">https://</code> or <code class="text-slate-200 font-mono">http://localhost</code>) and microphone permission for <code class="text-slate-200 font-mono">SpeechRecognition</code>. Optional API keys in <strong class="text-slate-200">AI Settings</strong> are saved only in <code class="text-slate-200 font-mono">localStorage</code> for local/testing use—never embed secret API keys in public client apps or production telephony flows.
               </p>
             </div>
 
             <div class="bg-slate-900/75 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
-              <div class="font-semibold text-sky-400">2. Routing Audio to Softphone / SIP / PSTN</div>
+              <div class="font-semibold text-sky-400">2. Routing Audio &amp; LLM Calls in Telephony</div>
               <p class="text-slate-400">
-                Web Speech APIs run in the browser tab. To bridge a bot onto a real softphone, SIP trunk, or PSTN line, route virtual audio cables (e.g., VB-Cable or BlackHole) into your softphone—or connect a backend telephony bridge (Twilio Media Streams, SIP/WebRTC gateway, or Asterisk/FreeSWITCH) to streaming STT/LLM/TTS services.
+                Web Speech APIs run inside the browser tab. To bridge onto a softphone, SIP trunk, or PSTN line, route virtual audio devices (such as VB-Cable or BlackHole) into your softphone—or run a backend server (Twilio Media Streams, SIP/WebRTC gateway, or Asterisk/FreeSWITCH) that holds your LLM credentials and streams audio/text securely.
               </p>
             </div>
           </div>
@@ -326,31 +383,208 @@
     </div>
   </div>
 
+  <!-- Optional Live LLM API Settings Drawer -->
+  <div id="aiDrawerBackdrop" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-xs transition-opacity" aria-hidden="true"></div>
+  <aside id="aiDrawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-panel border-l border-slate-800 shadow-2xl transform translate-x-full transition-transform duration-200 ease-out flex flex-col" role="dialog" aria-modal="true" aria-labelledby="aiDrawerTitle">
+    <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between gap-3">
+      <div>
+        <h2 id="aiDrawerTitle" class="text-base font-bold text-white">Live AI &amp; Fallback Settings</h2>
+        <p class="text-xs text-slate-400">Stored locally in your browser. Falls back seamlessly if offline or unconfigured.</p>
+      </div>
+      <button id="closeAiDrawerBtn" type="button" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer" aria-label="Close AI Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-5 overflow-y-auto space-y-4 flex-1 text-sm">
+      <!-- Security Notice -->
+      <div class="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 text-xs text-amber-200/90 leading-relaxed">
+        <strong class="font-semibold text-amber-300">Local / Testing Only:</strong> API keys entered here stay in your browser's <code class="font-mono">localStorage</code> for personal experimentation. For production apps or live SIP/PSTN voice pipelines, proxy LLM requests through a secure backend server.
+      </div>
+
+      <!-- Enable Live AI Toggle -->
+      <label class="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 cursor-pointer">
+        <div>
+          <div class="font-semibold text-white text-sm">Use Live AI When Available</div>
+          <div class="text-xs text-slate-400">Uses your configured provider; automatically falls back to the built-in multi-topic engine on error or when offline.</div>
+        </div>
+        <input id="useLiveAiToggle" type="checkbox" class="w-5 h-5 accent-emerald-500 rounded cursor-pointer shrink-0" />
+      </label>
+
+      <!-- Provider Selector -->
+      <div>
+        <label for="aiProviderSelect" class="block text-xs font-medium text-slate-300 mb-1.5">AI Provider Format</label>
+        <select id="aiProviderSelect" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 text-sm text-slate-100 px-3 py-2.5 outline-none transition">
+          <option value="gemini">Google Gemini API (gemini-3-flash-preview)</option>
+          <option value="openai">OpenAI-Compatible Chat Completions API</option>
+        </select>
+      </div>
+
+      <!-- API Key Input -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label for="aiApiKeyInput" class="block text-xs font-medium text-slate-300">API Key</label>
+          <button id="toggleKeyVisibilityBtn" type="button" class="text-[11px] text-violet-300 hover:text-violet-200 cursor-pointer">Show / Hide</button>
+        </div>
+        <input id="aiApiKeyInput" type="password" autocomplete="off" placeholder="Paste Gemini or OpenAI-compatible API key..." class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 text-sm text-slate-100 px-3.5 py-2.5 font-mono outline-none transition" />
+      </div>
+
+      <!-- OpenAI-Compatible Fields (shown/contextualized cleanly) -->
+      <div id="openaiEndpointGroup" class="space-y-3 rounded-xl bg-slate-900/60 border border-slate-800/90 p-3.5">
+        <div>
+          <label for="aiEndpointInput" class="block text-xs font-medium text-slate-300 mb-1.5">Chat Completions Endpoint URL</label>
+          <input id="aiEndpointInput" type="url" placeholder="https://api.openai.com/v1/chat/completions" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 text-xs text-slate-100 px-3 py-2 font-mono outline-none transition" />
+        </div>
+        <div>
+          <label for="aiModelInput" class="block text-xs font-medium text-slate-300 mb-1.5">Model Name</label>
+          <input id="aiModelInput" type="text" placeholder="gpt-4o-mini" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-violet-400 focus:ring-2 focus:ring-violet-400/20 text-xs text-slate-100 px-3 py-2 font-mono outline-none transition" />
+        </div>
+      </div>
+
+      <!-- Drawer Action Buttons -->
+      <div class="pt-2 flex flex-wrap items-center justify-between gap-2">
+        <button id="clearAiSettingsBtn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-medium text-rose-300 hover:bg-rose-500/10 border border-rose-500/25 transition cursor-pointer">
+          Clear Saved Key &amp; Reset
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="testAiConnectionBtn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer">
+            Test Connection
+          </button>
+          <button id="saveAiSettingsBtn" type="button" class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition cursor-pointer">
+            Save Settings
+          </button>
+        </div>
+      </div>
+
+      <div id="aiDrawerStatus" class="text-xs text-slate-400 min-h-[1.25rem]"></div>
+    </div>
+  </aside>
+
   <script>
     /**
      * CallBot Console Application
-     * Implements a browser-based voice call simulator using Web Speech APIs
-     * (SpeechRecognition / webkitSpeechRecognition and speechSynthesis) with
-     * graceful fallback to typed caller turns when mic/STT is unavailable.
+     * Upgrades the browser voice call simulator with:
+     * 1. Optional Live AI (Gemini or OpenAI-compatible endpoint) stored in localStorage
+     *    with automatic, silent-safe fallback to the built-in multi-topic engine.
+     * 2. A rich, domain-aware multi-topic conversational engine that adapts to
+     *    Greeting, Persona, Confidence Mode, and recent conversation context,
+     *    speaking in clean, natural spoken prose (no markdown symbols).
+     * 3. Topic & Confidence Mode selector + quick-try topic prompts.
      */
     (function () {
       'use strict';
 
+      const STORAGE_KEY = 'callbot_console_ai_settings_v1';
+
       // --- Script Templates ---
       const SCRIPT_TEMPLATES = {
         assistant: {
-          greeting: "Hello! This is Alex, your automated voice assistant. How can I help you on this call today?",
-          persona: "You are Alex, a helpful, concise voice call assistant. Answer questions clearly in 1-3 short sentences suited for spoken audio, ask helpful follow-up questions, and offer to connect with a specialist if needed."
+          greeting: "Hello! This is Alex. Whether we are diving into science, strategy, philosophy, or everyday decisions, what is on your mind today?",
+          persona: "Speak like a poised, articulate conversationalist who can discuss any topic naturally over a phone call. Keep replies concise and punchy for voice audio, highlight key trade-offs without sounding stiff or robotic, and ask engaging follow-up questions."
         },
         appointment: {
           greeting: "Hi there! This is Jordan calling from the scheduling desk to confirm your upcoming callback and appointment slot. Are you free for a quick confirmation?",
-          persona: "You are Jordan, a polite scheduling coordinator on a phone call. Help the caller confirm, reschedule, or cancel their appointment time, repeat dates/times clearly, and keep replies brief and natural for voice."
+          persona: "You are Jordan, a composed and helpful scheduling coordinator on a phone call. Help the caller confirm, reschedule, or cancel their appointment time, repeat dates and times clearly, and keep replies brief and natural for voice."
         },
         insurance: {
           greeting: "Hello! This is Taylor following up on your recent insurance quote request. Do you have a couple of minutes to review your coverage options and deductible preferences?",
-          persona: "You are Taylor, a clear and helpful insurance follow-up specialist on a voice call. Explain coverage concepts simply without jargon, ask about budget or deductible priorities, and offer to schedule a licensed agent review."
+          persona: "You are Taylor, a clear and confident insurance specialist on a voice call. Explain coverage concepts plainly without jargon, weigh cost versus protection trade-offs, and offer clear next steps or a licensed agent review."
         }
       };
+
+      // --- Topic & Confidence Modes ---
+      const CONFIDENCE_MODES = {
+        expert: {
+          label: 'Conversational Expert',
+          description: 'Speaks with calm authority, distills complexity into clean spoken sentences, and asks focused follow-ups.',
+          instruction: 'Adopt a calm, confident conversational expert tone. Give direct, well-structured spoken insights without jargon overload, note one practical trade-off when relevant, and close with a sharp follow-up question.'
+        },
+        socratic: {
+          label: 'Socratic Coach',
+          description: 'Clarifies assumptions, highlights core tensions, and guides the caller with thoughtful questions.',
+          instruction: 'Adopt a Socratic coach style. Briefly frame the core concept or tension, test underlying assumptions constructively, and ask a focused question that helps the caller sharpen their own thinking.'
+        },
+        executive: {
+          label: 'Executive Briefing',
+          description: 'Delivers high-signal takeaways, strategic trade-offs, and concrete next steps in tight spoken form.',
+          instruction: 'Adopt an executive briefing style. Lead with the bottom-line takeaway, state the key trade-off or risk plainly, and propose a crisp next step in two to three concise spoken sentences.'
+        },
+        debate: {
+          label: 'Debate Partner',
+          description: 'Presents strong counterpoints, steelmans opposing views, and keeps the exchange lively and fair.',
+          instruction: 'Adopt a sharp, articulate debate partner style. Acknowledge the strongest point on the caller side, offer a compelling counterpoint or alternative angle, and invite them to press back.'
+        }
+      };
+
+      // --- Domain Knowledge Modules for Any-Topic Confidence ---
+      const TOPIC_DOMAINS = [
+        {
+          id: 'Quantum Computing',
+          keywords: ['quantum', 'qubit', 'qubits', 'superposition', 'entanglement', 'error correction', 'decoherence', 'quantum gate'],
+          lead: 'Quantum computing uses qubits that can hold combinations of states and become entangled, allowing certain search, simulation, and optimization problems to be explored very differently from classical bits.',
+          tradeoff: 'From a practical standpoint, the real bottleneck is decoherence and quantum error correction, because fragile states lose accuracy fast unless scaled with fault-tolerant logical qubits.',
+          followup: 'Are you looking at quantum computing from a physics angle, or thinking about which industry problems could realistically benefit first?'
+        },
+        {
+          id: 'Negotiation & Persuasion',
+          keywords: ['negotiate', 'negotiation', 'leverage', 'pushback', 'price', 'discount', 'salary', 'deal', 'rapport', 'objection'],
+          lead: 'Strong negotiation starts with anchoring on clear value and listening for the other side’s underlying constraints rather than trading concessions out of discomfort.',
+          tradeoff: 'The key trade-off comes down to pushing hard for immediate terms versus preserving long-term trust and relationship momentum.',
+          followup: 'In the situation you have in mind, are you protecting price, timeline, or an ongoing working relationship?'
+        },
+        {
+          id: 'Space Exploration',
+          keywords: ['space', 'mars', 'moon', 'lunar', 'orbit', 'rocket', 'propulsion', 'astronaut', 'deep space', 'nasa', 'spacex'],
+          lead: 'Space exploration is shifting from one-off government milestones toward reusable launch cadence, orbital infrastructure, and sustained lunar or planetary operations.',
+          tradeoff: 'The biggest trade-off is balancing ambitious long-range destinations like Mars against radiation shielding, life-support reliability, and cost per kilogram.',
+          followup: 'What excites you most about space right now: reusable launch economics, orbital science, or long-duration crewed missions?'
+        },
+        {
+          id: 'Philosophy & Stoicism',
+          keywords: ['stoic', 'stoicism', 'marcus aurelius', 'seneca', 'epictetus', 'philosophy', 'meaning', 'ethics', 'virtue', 'mindset', 'discipline'],
+          lead: 'Stoicism centers on separating what is within your reasoned control, such as your judgment and response, from external events and outcomes you cannot dictate.',
+          tradeoff: 'The practical nuance is staying calm and grounded without turning detachment into indifference or ignoring real problems you can still fix.',
+          followup: 'Is there a specific pressure point or decision right now where applying that distinction feels hardest?'
+        },
+        {
+          id: 'Software & AI Systems',
+          keywords: ['ai', 'artificial intelligence', 'llm', 'model', 'software', 'code', 'coding', 'architecture', 'api', 'data', 'algorithm', 'agent'],
+          lead: 'Reliable AI and software systems depend less on a single clever prompt or model and more on clear boundaries, grounding, latency budgets, and predictable fallbacks.',
+          tradeoff: 'A classic trade-off in system design is higher capability and reasoning depth versus lower latency, cost, and deterministic reliability.',
+          followup: 'Are you building or evaluating a system yourself, and what matters most for your use case: speed, accuracy, or control?'
+        },
+        {
+          id: 'Business & Strategy',
+          keywords: ['business', 'strategy', 'startup', 'market', 'customer', 'revenue', 'product', 'growth', 'competition', 'management', 'leadership'],
+          lead: 'Sound business strategy comes down to choosing a distinct customer problem, deciding what not to build, and aligning execution around measurable feedback loops.',
+          tradeoff: 'The core tension is usually moving fast to test the market versus investing early in deeper product polish and operational foundations.',
+          followup: 'Are you zooming in on a specific product, team challenge, or market positioning question?'
+        },
+        {
+          id: 'History & Geopolitics',
+          keywords: ['history', 'historical', 'empire', 'ancient', 'war', 'treaty', 'economy', 'geopolitics', 'trade', 'industrial', 'century'],
+          lead: 'History rarely repeats identically, but recurring patterns around supply chains, incentives, technological shifts, and institutional trust show up again and again.',
+          tradeoff: 'When looking at historical turning points, the main trade-off is focusing on decisive leaders and events versus deeper structural and economic forces.',
+          followup: 'Which era, region, or turning point do you want to unpack together?'
+        },
+        {
+          id: 'Science & Health Basics',
+          keywords: ['science', 'physics', 'biology', 'chemistry', 'evolution', 'climate', 'energy', 'sleep', 'habit', 'health', 'wellness', 'nutrition'],
+          lead: 'In science and everyday wellness, consistent fundamentals and empirical evidence usually beat flashy shortcuts over the long run.',
+          tradeoff: 'The key trade-off is often short-term convenience or intensity versus sustainable habits you can maintain month after month.',
+          followup: 'What specific angle or everyday habit are you exploring around this?'
+        },
+        {
+          id: 'Creative Brainstorming & Lifestyle',
+          keywords: ['idea', 'brainstorm', 'creative', 'write', 'writing', 'story', 'book', 'travel', 'cook', 'cooking', 'food', 'music', 'sport', 'sports', 'movie'],
+          lead: 'Creative momentum builds fastest when you separate rough idea generation from editing, giving yourself room to explore bold angles before narrowing down.',
+          tradeoff: 'The sweet spot is keeping enough structure to spark direction while leaving plenty of room for surprise and personal taste.',
+          followup: 'Do you want to explore a few distinct directions quickly, or go deeper into one specific idea?'
+        }
+      ];
 
       // --- Application State ---
       const state = {
@@ -365,7 +599,15 @@
         recognitionActive: false,
         shouldListen: false,
         isSpeaking: false,
-        conversationHistory: [] // { role: 'bot' | 'user', text: string }
+        currentTopic: 'Open Conversation',
+        conversationHistory: [], // { role: 'bot' | 'user', text: string }
+        aiSettings: {
+          useLiveAi: false,
+          provider: 'gemini', // 'gemini' | 'openai'
+          apiKey: '',
+          endpoint: 'https://api.openai.com/v1/chat/completions',
+          model: 'gpt-4o-mini'
+        }
       };
 
       // --- DOM References ---
@@ -374,17 +616,23 @@
         callStateBadge: document.getElementById('callStateBadge'),
         callStateDot: document.getElementById('callStateDot'),
         callStateText: document.getElementById('callStateText'),
+        engineModePill: document.getElementById('engineModePill'),
+        engineModeDot: document.getElementById('engineModeDot'),
+        engineModeLabel: document.getElementById('engineModeLabel'),
         callTimer: document.getElementById('callTimer'),
         startCallBtn: document.getElementById('startCallBtn'),
         muteMicBtn: document.getElementById('muteMicBtn'),
         muteMicLabel: document.getElementById('muteMicLabel'),
         hangUpBtn: document.getElementById('hangUpBtn'),
+        openAiDrawerBtn: document.getElementById('openAiDrawerBtn'),
 
         ttsStatusDot: document.getElementById('ttsStatusDot'),
         ttsSupportText: document.getElementById('ttsSupportText'),
         sttStatusDot: document.getElementById('sttStatusDot'),
         sttSupportText: document.getElementById('sttSupportText'),
 
+        confidenceModeSelect: document.getElementById('confidenceModeSelect'),
+        confidenceModeDesc: document.getElementById('confidenceModeDesc'),
         greetingInput: document.getElementById('greetingInput'),
         personaInput: document.getElementById('personaInput'),
         voiceSelect: document.getElementById('voiceSelect'),
@@ -397,31 +645,179 @@
         activityBadge: document.getElementById('activityBadge'),
         activityDot: document.getElementById('activityDot'),
         activityLabel: document.getElementById('activityLabel'),
+        currentTopicLabel: document.getElementById('currentTopicLabel'),
+        turnCountLabel: document.getElementById('turnCountLabel'),
         clearTranscriptBtn: document.getElementById('clearTranscriptBtn'),
         transcriptLog: document.getElementById('transcriptLog'),
         textUtteranceForm: document.getElementById('textUtteranceForm'),
         textUtteranceInput: document.getElementById('textUtteranceInput'),
-        sendUtteranceBtn: document.getElementById('sendUtteranceBtn')
+        sendUtteranceBtn: document.getElementById('sendUtteranceBtn'),
+
+        // AI Drawer DOM
+        aiDrawerBackdrop: document.getElementById('aiDrawerBackdrop'),
+        aiDrawer: document.getElementById('aiDrawer'),
+        closeAiDrawerBtn: document.getElementById('closeAiDrawerBtn'),
+        useLiveAiToggle: document.getElementById('useLiveAiToggle'),
+        aiProviderSelect: document.getElementById('aiProviderSelect'),
+        aiApiKeyInput: document.getElementById('aiApiKeyInput'),
+        toggleKeyVisibilityBtn: document.getElementById('toggleKeyVisibilityBtn'),
+        openaiEndpointGroup: document.getElementById('openaiEndpointGroup'),
+        aiEndpointInput: document.getElementById('aiEndpointInput'),
+        aiModelInput: document.getElementById('aiModelInput'),
+        clearAiSettingsBtn: document.getElementById('clearAiSettingsBtn'),
+        testAiConnectionBtn: document.getElementById('testAiConnectionBtn'),
+        saveAiSettingsBtn: document.getElementById('saveAiSettingsBtn'),
+        aiDrawerStatus: document.getElementById('aiDrawerStatus')
       };
 
-      // --- Helper: Current Formatted Timestamp ---
+      // --- Helpers ---
       function getTimestamp() {
         const now = new Date();
         return now.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
       }
 
-      // --- Helper: Format Call Duration (MM:SS) ---
       function formatDuration(totalSeconds) {
         const mins = Math.floor(totalSeconds / 60);
         const secs = totalSeconds % 60;
         return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
       }
 
+      /**
+       * Cleans markdown characters (*, #, `, bullets) so speechSynthesis reads
+       * smooth, natural spoken sentences instead of punctuation artifacts.
+       */
+      function sanitizeForSpeech(text) {
+        return (text || '')
+          .replace(/```[\s\S]*?```/g, ' ')
+          .replace(/[*#_~`]+/g, '')
+          .replace(/^\s*[-•]\s+/gm, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function updateTurnAndTopicUI() {
+        dom.currentTopicLabel.textContent = state.currentTopic || 'Open Conversation';
+        const turns = state.conversationHistory.length;
+        dom.turnCountLabel.textContent = `${turns} ${turns === 1 ? 'turn' : 'turns'}`;
+      }
+
+      function updateEngineBadge() {
+        const liveReady = state.aiSettings.useLiveAi && Boolean(state.aiSettings.apiKey.trim());
+        if (liveReady) {
+          const providerName = state.aiSettings.provider === 'openai'
+            ? (state.aiSettings.model.trim() || 'OpenAI-Compatible')
+            : 'Gemini Live AI';
+          dom.engineModePill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-violet-500/15 text-violet-300 border border-violet-500/30';
+          dom.engineModeDot.className = 'w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse';
+          dom.engineModeLabel.textContent = `Live AI: ${providerName}`;
+        } else {
+          dom.engineModePill.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/25';
+          dom.engineModeDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
+          dom.engineModeLabel.textContent = 'Built-In Multi-Topic Engine';
+        }
+      }
+
+      // --- AI Settings Persistence & Drawer ---
+      function loadAiSettings() {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            state.aiSettings = {
+              useLiveAi: Boolean(parsed.useLiveAi),
+              provider: parsed.provider === 'openai' ? 'openai' : 'gemini',
+              apiKey: typeof parsed.apiKey === 'string' ? parsed.apiKey : '',
+              endpoint: typeof parsed.endpoint === 'string' && parsed.endpoint.trim()
+                ? parsed.endpoint.trim()
+                : 'https://api.openai.com/v1/chat/completions',
+              model: typeof parsed.model === 'string' && parsed.model.trim()
+                ? parsed.model.trim()
+                : 'gpt-4o-mini'
+            };
+          }
+        } catch (_) {
+          // Ignore storage access errors in restricted frames
+        }
+        syncAiDrawerInputs();
+        updateEngineBadge();
+      }
+
+      function syncAiDrawerInputs() {
+        dom.useLiveAiToggle.checked = state.aiSettings.useLiveAi;
+        dom.aiProviderSelect.value = state.aiSettings.provider;
+        dom.aiApiKeyInput.value = state.aiSettings.apiKey;
+        dom.aiEndpointInput.value = state.aiSettings.endpoint;
+        dom.aiModelInput.value = state.aiSettings.model;
+        toggleProviderFields();
+      }
+
+      function toggleProviderFields() {
+        const isOpenAi = dom.aiProviderSelect.value === 'openai';
+        dom.openaiEndpointGroup.classList.toggle('opacity-60', !isOpenAi);
+      }
+
+      function openAiDrawer() {
+        syncAiDrawerInputs();
+        dom.aiDrawerStatus.textContent = '';
+        dom.aiDrawerBackdrop.classList.remove('hidden');
+        requestAnimationFrame(() => {
+          dom.aiDrawer.classList.remove('translate-x-full');
+        });
+      }
+
+      function closeAiDrawer() {
+        dom.aiDrawer.classList.add('translate-x-full');
+        setTimeout(() => {
+          dom.aiDrawerBackdrop.classList.add('hidden');
+        }, 200);
+      }
+
+      function saveAiSettings(showStatus = true) {
+        state.aiSettings = {
+          useLiveAi: dom.useLiveAiToggle.checked,
+          provider: dom.aiProviderSelect.value === 'openai' ? 'openai' : 'gemini',
+          apiKey: dom.aiApiKeyInput.value.trim(),
+          endpoint: dom.aiEndpointInput.value.trim() || 'https://api.openai.com/v1/chat/completions',
+          model: dom.aiModelInput.value.trim() || 'gpt-4o-mini'
+        };
+
+        try {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.aiSettings));
+        } catch (_) {}
+
+        updateEngineBadge();
+        if (showStatus) {
+          if (state.aiSettings.useLiveAi && !state.aiSettings.apiKey) {
+            dom.aiDrawerStatus.className = 'text-xs text-amber-300';
+            dom.aiDrawerStatus.textContent = 'Saved. Live AI is toggled on without a key, so the built-in engine will be used until a key is added.';
+          } else {
+            dom.aiDrawerStatus.className = 'text-xs text-emerald-400';
+            dom.aiDrawerStatus.textContent = 'Settings saved locally in this browser.';
+          }
+        }
+      }
+
+      function clearAiSettings() {
+        state.aiSettings = {
+          useLiveAi: false,
+          provider: 'gemini',
+          apiKey: '',
+          endpoint: 'https://api.openai.com/v1/chat/completions',
+          model: 'gpt-4o-mini'
+        };
+        try {
+          window.localStorage.removeItem(STORAGE_KEY);
+        } catch (_) {}
+        syncAiDrawerInputs();
+        updateEngineBadge();
+        dom.aiDrawerStatus.className = 'text-xs text-slate-300';
+        dom.aiDrawerStatus.textContent = 'Cleared saved settings and reverted to built-in multi-topic engine.';
+      }
+
       // --- Transcript Rendering ---
       function appendTranscriptEntry(speaker, text) {
         if (!text || !text.trim()) return;
 
-        // Remove empty placeholder if present
         const emptyPlaceholder = dom.transcriptLog.querySelector('[data-placeholder="true"]');
         if (!dom.transcriptLog.querySelector('[data-entry="true"]')) {
           dom.transcriptLog.innerHTML = '';
@@ -433,7 +829,6 @@
 
         let badgeClass = 'bg-slate-800 text-slate-300 border-slate-700';
         let bubbleClass = 'bg-slate-900/80 border-slate-800 text-slate-200';
-        let label = speaker;
 
         if (speaker === 'Bot') {
           badgeClass = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
@@ -451,7 +846,7 @@
 
         const tagSpan = document.createElement('span');
         tagSpan.className = `inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${badgeClass}`;
-        tagSpan.textContent = label;
+        tagSpan.textContent = speaker;
 
         const timeSpan = document.createElement('span');
         timeSpan.className = 'font-mono text-[11px] text-slate-500';
@@ -479,6 +874,8 @@
           </div>
         `;
         state.conversationHistory = [];
+        state.currentTopic = 'Open Conversation';
+        updateTurnAndTopicUI();
       }
 
       // --- Activity Status Indicator ---
@@ -611,14 +1008,15 @@
       }
 
       function speakBotMessage(text, options = {}) {
-        const cleanText = (text || '').trim();
-        if (!cleanText) return;
+        const spokenText = sanitizeForSpeech(text);
+        if (!spokenText) return;
 
         const { logToTranscript = true, resumeListeningAfter = true } = options;
 
         if (logToTranscript) {
-          appendTranscriptEntry('Bot', cleanText);
-          state.conversationHistory.push({ role: 'bot', text: cleanText });
+          appendTranscriptEntry('Bot', spokenText);
+          state.conversationHistory.push({ role: 'bot', text: spokenText });
+          updateTurnAndTopicUI();
         }
 
         if (!synthSupported) {
@@ -627,7 +1025,6 @@
         }
 
         try {
-          // Pause recognition while bot speaks to prevent self-echo loops
           const wasListening = state.recognitionActive;
           if (wasListening && state.recognition) {
             state.shouldListen = false;
@@ -636,7 +1033,7 @@
 
           window.speechSynthesis.cancel();
 
-          const utterance = new SpeechSynthesisUtterance(cleanText);
+          const utterance = new SpeechSynthesisUtterance(spokenText);
           const selectedIdx = Number(dom.voiceSelect.value);
           if (!Number.isNaN(selectedIdx) && state.voices[selectedIdx]) {
             utterance.voice = state.voices[selectedIdx];
@@ -653,8 +1050,6 @@
             state.isSpeaking = false;
             if (state.callStatus === 'Connected' && resumeListeningAfter && !state.isMuted) {
               startListening();
-            } else if (state.callStatus === 'Connected') {
-              setActivity('Standby');
             } else {
               setActivity('Standby');
             }
@@ -759,9 +1154,7 @@
         try {
           state.recognition.start();
           setActivity('Listening');
-        } catch (_) {
-          // Recognition may already be starting
-        }
+        } catch (_) {}
       }
 
       function stopListening() {
@@ -774,74 +1167,270 @@
         state.recognitionActive = false;
       }
 
-      // --- Simulated Script / Persona Response Engine ---
-      function generateBotReply(callerText) {
-        const lower = callerText.toLowerCase();
+      // --- Topic Detection & Built-In Multi-Topic Conversational Engine ---
+      function extractTopicSubject(text) {
+        const clean = (text || '').trim();
+        const lower = clean.toLowerCase();
+
+        // Check curated domains first
+        for (const domain of TOPIC_DOMAINS) {
+          if (domain.keywords.some((kw) => new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(lower))) {
+            return { topic: domain.id, domain };
+          }
+        }
+
+        // Extract dynamic subject phrase for open-ended topics ("tell me about X", "what do you think of X", "how does X work")
+        const patterns = [
+          /(?:about|on|regarding|concerning|into)\s+([a-z0-9\s-]{2,42}?)(?:[?.!,]|$)/i,
+          /(?:what is|what are|how does|how do|why is|why are)\s+([a-z0-9\s-]{2,36}?)(?:[?.!,]|$)/i
+        ];
+
+        for (const pat of patterns) {
+          const match = clean.match(pat);
+          if (match && match[1]) {
+            const candidate = match[1]
+              .replace(/^(the|a|an|my|our|your|some|this|that)\s+/i, '')
+              .replace(/\b(work|works|matter|matters|happen|happens)\b$/i, '')
+              .trim();
+            if (candidate.length >= 2 && candidate.split(/\s+/).length <= 5) {
+              const titleCased = candidate.replace(/\b\w/g, (c) => c.toUpperCase());
+              return { topic: titleCased, domain: null };
+            }
+          }
+        }
+
+        return { topic: state.currentTopic || 'Open Conversation', domain: null };
+      }
+
+      function buildSystemPrompt() {
+        const modeKey = dom.confidenceModeSelect.value || 'expert';
+        const mode = CONFIDENCE_MODES[modeKey] || CONFIDENCE_MODES.expert;
+        const greeting = dom.greetingInput.value.trim() || SCRIPT_TEMPLATES.assistant.greeting;
+        const persona = dom.personaInput.value.trim() || SCRIPT_TEMPLATES.assistant.persona;
+
+        return [
+          `Opening greeting used on this call: "${greeting}"`,
+          `Persona & script instructions: ${persona}`,
+          `Speaking style mode (${mode.label}): ${mode.instruction}`,
+          'Voice delivery rules: Respond like a confident speaker on a live voice call. Write 2 to 4 natural spoken sentences. Never use markdown asterisks, bullet symbols, or numbered lists that sound awkward when read aloud.'
+        ].join('\n');
+      }
+
+      function generateBuiltInReply(callerText) {
+        const clean = callerText.trim();
+        const lower = clean.toLowerCase();
+        const modeKey = dom.confidenceModeSelect.value || 'expert';
         const persona = (dom.personaInput.value || '').toLowerCase();
 
+        // Detect topic shift or continuation
+        const detected = extractTopicSubject(clean);
+        const topicChanged = detected.topic !== state.currentTopic && detected.topic !== 'Open Conversation';
+        if (detected.topic) {
+          state.currentTopic = detected.topic;
+        }
+        updateTurnAndTopicUI();
+
         // Goodbye / Hang-up cues
-        if (/\b(bye|goodbye|hang up|that's all|no thanks|talk later)\b/.test(lower)) {
-          return "Thank you for speaking with me today. Have a great rest of your day, and feel free to call back anytime!";
+        if (/\b(bye|goodbye|hang up|that's all|no thanks|talk later|wrap up)\b/.test(lower)) {
+          return `That was a great conversation${state.currentTopic !== 'Open Conversation' ? ` around ${state.currentTopic}` : ''}. Thanks for calling in today, and feel free to pick up anytime.`;
         }
 
         // Human / Transfer cues
-        if (/\b(agent|human|representative|manager|supervisor|person|transfer)\b/.test(lower)) {
-          return "I understand you'd like to speak with a team member. I'm noting your request for a specialist transfer—could you share your name or best callback number first?";
+        if (/\b(agent|human|representative|manager|supervisor|transfer|speak to someone)\b/.test(lower)) {
+          return "Happy to help get you connected with a person. Before I hand that off, is there a quick detail or preference you want noted so you do not have to repeat yourself?";
         }
 
-        // Context-aware responses tailored by persona keywords
-        if (persona.includes('appointment') || persona.includes('scheduling') || /\b(appointment|reschedule|schedule|time|tomorrow|confirm)\b/.test(lower)) {
+        // Scheduling / Appointment script support when active
+        if ((persona.includes('scheduling') || persona.includes('appointment')) && /\b(appointment|reschedule|schedule|time|tomorrow|confirm|slot)\b/.test(lower)) {
           if (/\b(reschedule|change|later|different time)\b/.test(lower)) {
-            return "No problem at all. Would you prefer a morning slot or an afternoon time later this week?";
+            return "We can easily adjust that window. Would a morning slot or an afternoon opening work better for your schedule?";
           }
           if (/\b(yes|confirm|sounds good|works for me|sure)\b/.test(lower)) {
-            return "Great, your callback and appointment window is confirmed. Is there anything else I can update for you before we wrap up?";
+            return "You are all set with that time confirmed. Is there anything else on your agenda I can help clarify before we finish?";
           }
-          return "I can help confirm or adjust your appointment time. What day and time works best for you?";
+          return "I can lock in or shift that slot for you right now. What day and time frame feels easiest on your end?";
         }
 
-        if (persona.includes('insurance') || /\b(quote|policy|coverage|deductible|premium|claim)\b/.test(lower)) {
-          if (/\b(deductible|lower|cheaper|price|cost|budget)\b/.test(lower)) {
-            return "Adjusting the deductible can help manage monthly costs while keeping core protection in place. Would you like a lower monthly payment or lower out-of-pocket costs?";
+        // Insurance follow-up script support when active
+        if (persona.includes('insurance') && /\b(quote|policy|coverage|deductible|premium|claim)\b/.test(lower)) {
+          return "Looking at coverage comes down to balancing predictable monthly costs against out-of-pocket protection when something unexpected happens. Would you rather keep monthly payments lean or maximize coverage limits?";
+        }
+
+        // Pushback / Disagreement / Clarification handling
+        const isPushback = /\b(disagree|not sure|doubt|push back|counter|wrong|actually|wait|clarify|what do you mean)\b/.test(lower);
+        const recentBotTurns = state.conversationHistory.filter((m) => m.role === 'bot').length;
+
+        // Domain-specific confident synthesis
+        if (detected.domain) {
+          const d = detected.domain;
+          if (isPushback) {
+            if (modeKey === 'debate') {
+              return `Fair pushback—that is exactly where people challenge the conventional view on ${d.id.toLowerCase()}. ${d.tradeoff} ${d.followup}`;
+            }
+            return `Good point to press on. ${d.tradeoff} Looking at ${d.id.toLowerCase()} from that angle, ${d.followup.charAt(0).toLowerCase() + d.followup.slice(1)}`;
           }
-          return "I'd be happy to review your quote options. Are you looking to focus on monthly cost, broader coverage, or a quick check-in with a licensed advisor?";
+
+          if (modeKey === 'socratic') {
+            return `${d.lead} ${d.followup}`;
+          }
+          if (modeKey === 'executive') {
+            return `${d.lead} ${d.tradeoff}`;
+          }
+          if (modeKey === 'debate') {
+            return `${d.lead} At the same time, ${d.tradeoff.charAt(0).toLowerCase() + d.tradeoff.slice(1)} ${d.followup}`;
+          }
+          return `${d.lead} ${d.tradeoff} ${d.followup}`;
         }
 
-        // General helpful conversational responses
-        if (/\b(hello|hi|hey|good morning|good afternoon|good evening)\b/.test(lower) && callerText.split(/\s+/).length <= 4) {
-          return "Hi there! Thanks for reaching out. What can I help you take care of today?";
+        // General open-ended any-topic confident response
+        const subjectLabel = state.currentTopic && state.currentTopic !== 'Open Conversation'
+          ? state.currentTopic
+          : 'that';
+
+        if (isPushback) {
+          if (modeKey === 'socratic') {
+            return `That pushes right to the heart of ${subjectLabel}. What evidence or real-world example makes you lean that way, and where might the strongest counterargument sit?`;
+          }
+          if (modeKey === 'debate') {
+            return `I respect that pushback on ${subjectLabel}. On the flip side, a strong counter-view is that incentives and context often flip the outcome faster than expected. How would you answer that?`;
+          }
+          return `Fair challenge on ${subjectLabel}. Often the real difference comes down to context, timing, and which trade-off matters most to you right now. Which part of that picture would you like to test next?`;
         }
 
-        if (/\b(help|assist|question|issue|problem)\b/.test(lower)) {
-          return "I'm ready to help. Tell me a bit more about what you need, and we'll take it step by step.";
+        if (modeKey === 'socratic') {
+          return `With ${subjectLabel}, the clearest place to start is defining what success actually looks like and what assumption you are relying on. ${topicChanged ? `What sparked your interest in ${subjectLabel} today?` : 'What feels most uncertain about it right now?'}`;
         }
 
-        if (/\b(thank you|thanks)\b/.test(lower)) {
-          return "You're very welcome! Let me know if there's anything else I can assist you with.";
+        if (modeKey === 'executive') {
+          return `On ${subjectLabel}, the bottom line is focusing on high-leverage fundamentals first while keeping an eye on execution risk and cost. The practical next step is picking one concrete test or decision to make next.`;
         }
 
-        return `Got it—you mentioned "${callerText}". Based on your call goals, how would you like to proceed next?`;
+        if (modeKey === 'debate') {
+          return `Talking through ${subjectLabel} is interesting because there is a strong case for leaning in boldly, alongside a real argument for pacing and restraint. Where do you stand on that balance right now?`;
+        }
+
+        // Conversational Expert default
+        if (recentBotTurns <= 1 && /^(hi|hello|hey|good morning|good afternoon|good evening)\b/i.test(clean) && clean.split(/\s+/).length <= 4) {
+          return "Hey there, good to connect. Throw any topic, question, or scenario my way and we can dig right in.";
+        }
+
+        return `From a practical standpoint, ${subjectLabel} makes the most sense when you break it down into its core driver, its main trade-off, and how it plays out in real life. ${topicChanged ? `What aspect of ${subjectLabel} do you want to focus on first?` : 'Where would you like to take this next?'}`;
       }
 
-      function handleCallerUtterance(text) {
+      // --- Optional Live AI Request with Seamless Fallback ---
+      async function callLiveAi(callerText) {
+        const { provider, apiKey, endpoint, model } = state.aiSettings;
+        if (!apiKey) {
+          throw new Error('Missing API key');
+        }
+
+        const systemInstruction = buildSystemPrompt();
+        const historySlice = state.conversationHistory.slice(-10);
+
+        if (provider === 'gemini') {
+          const contents = historySlice.map((msg) => ({
+            role: msg.role === 'bot' ? 'model' : 'user',
+            parts: [{ text: msg.text }]
+          }));
+          if (!contents.length || contents[contents.length - 1].parts[0].text !== callerText) {
+            contents.push({ role: 'user', parts: [{ text: callerText }] });
+          }
+
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemInstruction }] },
+              contents,
+              generationConfig: {
+                temperature: 0.75,
+                maxOutputTokens: 220
+              }
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Gemini HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+          const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (!replyText.trim()) {
+            throw new Error('Empty Gemini response');
+          }
+          return sanitizeForSpeech(replyText);
+        }
+
+        // OpenAI-compatible Chat Completions endpoint
+        const messages = [
+          { role: 'system', content: systemInstruction },
+          ...historySlice.map((msg) => ({
+            role: msg.role === 'bot' ? 'assistant' : 'user',
+            content: msg.text
+          }))
+        ];
+        if (messages[messages.length - 1].content !== callerText) {
+          messages.push({ role: 'user', content: callerText });
+        }
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: model || 'gpt-4o-mini',
+            messages,
+            temperature: 0.75,
+            max_tokens: 220
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Endpoint HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        const replyText = data?.choices?.[0]?.message?.content || '';
+        if (!replyText.trim()) {
+          throw new Error('Empty chat completion response');
+        }
+        return sanitizeForSpeech(replyText);
+      }
+
+      async function generateBotReplySmart(callerText) {
+        const liveEnabled = state.aiSettings.useLiveAi && Boolean(state.aiSettings.apiKey.trim());
+        if (liveEnabled && navigator.onLine !== false) {
+          try {
+            return await callLiveAi(callerText);
+          } catch (_) {
+            // Seamless fallback to built-in multi-topic engine without disrupting the call
+            return generateBuiltInReply(callerText);
+          }
+        }
+        return generateBuiltInReply(callerText);
+      }
+
+      async function handleCallerUtterance(text) {
         const clean = (text || '').trim();
         if (!clean) return;
 
-        // If user types a message while Idle or Ended, auto-connect into a simulated session so testing is effortless
         if (state.callStatus === 'Idle' || state.callStatus === 'Ended') {
           startCallImmediate();
         }
 
         appendTranscriptEntry('Caller', clean);
         state.conversationHistory.push({ role: 'user', text: clean });
+        updateTurnAndTopicUI();
 
         setActivity('Thinking');
 
-        const reply = generateBotReply(clean);
-        setTimeout(() => {
-          if (state.callStatus === 'Ended') return;
-          speakBotMessage(reply, { logToTranscript: true, resumeListeningAfter: true });
-        }, 450);
+        const reply = await generateBotReplySmart(clean);
+        if (state.callStatus === 'Ended') return;
+
+        speakBotMessage(reply, { logToTranscript: true, resumeListeningAfter: true });
       }
 
       // --- Call Lifecycle Actions ---
@@ -918,6 +1507,42 @@
       dom.muteMicBtn.addEventListener('click', handleToggleMute);
       dom.clearTranscriptBtn.addEventListener('click', clearTranscript);
 
+      dom.openAiDrawerBtn.addEventListener('click', openAiDrawer);
+      dom.closeAiDrawerBtn.addEventListener('click', closeAiDrawer);
+      dom.aiDrawerBackdrop.addEventListener('click', closeAiDrawer);
+      dom.aiProviderSelect.addEventListener('change', toggleProviderFields);
+      dom.saveAiSettingsBtn.addEventListener('click', () => saveAiSettings(true));
+      dom.clearAiSettingsBtn.addEventListener('click', clearAiSettings);
+
+      dom.toggleKeyVisibilityBtn.addEventListener('click', () => {
+        dom.aiApiKeyInput.type = dom.aiApiKeyInput.type === 'password' ? 'text' : 'password';
+      });
+
+      dom.testAiConnectionBtn.addEventListener('click', async () => {
+        saveAiSettings(false);
+        if (!state.aiSettings.apiKey) {
+          dom.aiDrawerStatus.className = 'text-xs text-amber-300';
+          dom.aiDrawerStatus.textContent = 'Enter an API key first to test a live connection.';
+          return;
+        }
+        dom.aiDrawerStatus.className = 'text-xs text-sky-300';
+        dom.aiDrawerStatus.textContent = 'Testing live connection...';
+        try {
+          const sample = await callLiveAi('Say hello in one confident sentence.');
+          dom.aiDrawerStatus.className = 'text-xs text-emerald-400';
+          dom.aiDrawerStatus.textContent = `Connected: "${sample}"`;
+        } catch (err) {
+          dom.aiDrawerStatus.className = 'text-xs text-amber-300';
+          dom.aiDrawerStatus.textContent = `Live check failed (${err.message}). Built-in engine will still handle calls seamlessly.`;
+        }
+      });
+
+      dom.confidenceModeSelect.addEventListener('change', () => {
+        const mode = CONFIDENCE_MODES[dom.confidenceModeSelect.value] || CONFIDENCE_MODES.expert;
+        dom.confidenceModeDesc.textContent = mode.description;
+        appendTranscriptEntry('System', `Switched confidence mode to "${mode.label}".`);
+      });
+
       dom.rateSlider.addEventListener('input', () => {
         dom.rateValue.textContent = `${Number(dom.rateSlider.value).toFixed(2)}x`;
       });
@@ -946,6 +1571,15 @@
         });
       });
 
+      document.querySelectorAll('.topic-prompt-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const promptText = btn.getAttribute('data-topic-prompt') || '';
+          if (promptText) {
+            handleCallerUtterance(promptText);
+          }
+        });
+      });
+
       dom.textUtteranceForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = dom.textUtteranceInput.value.trim();
@@ -955,6 +1589,7 @@
       });
 
       // --- Initialization ---
+      loadAiSettings();
       populateVoices();
       if (synthSupported && typeof window.speechSynthesis.addEventListener === 'function') {
         window.speechSynthesis.addEventListener('voiceschanged', populateVoices);
@@ -962,6 +1597,7 @@
       initSpeechRecognition();
       setCallStatus('Idle');
       setActivity('Standby');
+      updateTurnAndTopicUI();
     })();
   </script>
 </body>
