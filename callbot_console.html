@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CallBot Console — Browser Voice Call Simulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slatebg: '#0b1120',
+            panel: '#111827',
+            card: '#1e293b',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Custom subtle scrollbars for transcript & logs */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(71, 85, 105, 0.8);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 1);
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.75;
+      }
+      70% {
+        transform: scale(1.35);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1.35);
+        opacity: 0;
+      }
+    }
+
+    .ring-pulse {
+      animation: pulse-ring 1.8s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-slatebg text-slate-100 font-sans min-h-screen antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+  <!-- Main Application Wrapper -->
+  <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5">
+
+    <!-- Top Call Status Bar -->
+    <header class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <!-- Brand + State Badge + Timer -->
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+          <div class="relative flex items-center justify-center w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+            <span id="ringAnimation" class="hidden absolute inset-0 rounded-xl bg-emerald-400/30 ring-pulse"></span>
+            <!-- Phone / Bot Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+          </div>
+
+          <div>
+            <div class="flex items-center gap-2.5">
+              <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">CallBot Console</h1>
+              <span id="callStateBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                <span id="callStateDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+                <span id="callStateText">Idle</span>
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Browser Voice Call Simulator • Web Speech API &amp; Script Engine</p>
+          </div>
+
+          <!-- Call Timer -->
+          <div class="ml-auto sm:ml-2 px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span id="callTimer" class="font-mono text-sm sm:text-base font-medium text-slate-200 tabular-nums">00:00</span>
+          </div>
+        </div>
+
+        <!-- Call Controls -->
+        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <button id="startCallBtn" type="button" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 transition shadow-lg shadow-emerald-500/20 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+            <span>Start Call</span>
+          </button>
+
+          <button id="muteMicBtn" type="button" disabled class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:pointer-events-none text-slate-100 border border-slate-700 transition cursor-pointer">
+            <svg id="micIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+              <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
+            <span id="muteMicLabel">Mute Mic</span>
+          </button>
+
+          <button id="hangUpBtn" type="button" disabled class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-500 disabled:opacity-40 disabled:pointer-events-none text-white transition shadow-lg shadow-rose-600/20 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"></path>
+              <line x1="23" y1="1" x2="1" y2="23"></line>
+            </svg>
+            <span>Hang Up</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Browser Capability & Status Banner -->
+      <div id="capabilityNotice" class="mt-4 pt-3 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-400">
+        <div id="apiSupportSummary" class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800/90 text-slate-300">
+            <span id="ttsStatusDot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+            Speech Synthesis: <strong id="ttsSupportText" class="font-medium">Checking...</strong>
+          </span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800/90 text-slate-300">
+            <span id="sttStatusDot" class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+            Speech Recognition: <strong id="sttSupportText" class="font-medium">Checking...</strong>
+          </span>
+        </div>
+        <span class="text-slate-400">Tip: Use the text fallback box below anytime if your mic is muted or unavailable.</span>
+      </div>
+    </header>
+
+    <!-- Main 12-Column Responsive Workspace -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- Left Column: Script & Voice Settings (5 cols) -->
+      <section class="lg:col-span-5 space-y-5">
+        <!-- Script & Persona Card -->
+        <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-semibold text-white">Bot Script &amp; Persona</h2>
+              <p class="text-xs text-slate-400">Customize greeting, behavior prompts, or apply a preset.</p>
+            </div>
+          </div>
+
+          <!-- Quick-Insert Script Templates -->
+          <div>
+            <label class="block text-xs font-medium uppercase tracking-wider text-slate-400 mb-2">Quick-Insert Templates</label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-2">
+              <button type="button" data-template="assistant" class="template-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 transition cursor-pointer">
+                <div class="text-xs font-semibold text-emerald-400">General Assistant</div>
+                <div class="text-[11px] text-slate-400 truncate mt-0.5">Helpful intake &amp; routing</div>
+              </button>
+              <button type="button" data-template="appointment" class="template-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-sky-500/50 transition cursor-pointer">
+                <div class="text-xs font-semibold text-sky-400">Callback Check-In</div>
+                <div class="text-[11px] text-slate-400 truncate mt-0.5">Confirm schedule &amp; time</div>
+              </button>
+              <button type="button" data-template="insurance" class="template-btn text-left px-3 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-violet-500/50 transition cursor-pointer">
+                <div class="text-xs font-semibold text-violet-400">Insurance Follow-Up</div>
+                <div class="text-[11px] text-slate-400 truncate mt-0.5">Quote review &amp; coverage</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Opening Greeting -->
+          <div>
+            <label for="greetingInput" class="block text-xs font-medium text-slate-300 mb-1.5">Opening Greeting</label>
+            <textarea id="greetingInput" rows="2" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 p-3 outline-none transition resize-none">Hello! This is Alex, your automated voice assistant. How can I help you on this call today?</textarea>
+          </div>
+
+          <!-- Bot Persona / Script Prompts -->
+          <div>
+            <label for="personaInput" class="block text-xs font-medium text-slate-300 mb-1.5">Bot Persona &amp; Script Instructions</label>
+            <textarea id="personaInput" rows="4" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 p-3 outline-none transition resize-y">Keep responses concise, polite, and easy to understand over a phone call. Ask clarifying questions when needed, confirm details clearly, and offer next steps or a transfer if requested.</textarea>
+          </div>
+        </div>
+
+        <!-- Voice Synthesizer Settings Card -->
+        <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-base font-semibold text-white">Voice &amp; Prosody</h2>
+              <p class="text-xs text-slate-400">Configure browser speechSynthesis voice, rate, and pitch.</p>
+            </div>
+            <button id="testVoiceBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer">
+              Test Voice
+            </button>
+          </div>
+
+          <!-- Voice Selector -->
+          <div>
+            <label for="voiceSelect" class="block text-xs font-medium text-slate-300 mb-1.5">System Voice</label>
+            <select id="voiceSelect" class="w-full rounded-xl bg-slate-950/90 border border-slate-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 text-sm text-slate-100 px-3 py-2.5 outline-none transition">
+              <option value="">Loading system voices...</option>
+            </select>
+          </div>
+
+          <!-- Rate Slider -->
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1.5">
+              <label for="rateSlider" class="font-medium text-slate-300">Speech Rate</label>
+              <span id="rateValue" class="font-mono text-emerald-400">1.00x</span>
+            </div>
+            <input id="rateSlider" type="range" min="0.6" max="1.6" step="0.05" value="1.0" class="w-full accent-emerald-500 cursor-pointer" />
+            <div class="flex justify-between text-[11px] text-slate-500 mt-0.5">
+              <span>0.6x (Slower)</span>
+              <span>1.0x</span>
+              <span>1.6x (Faster)</span>
+            </div>
+          </div>
+
+          <!-- Pitch Slider -->
+          <div>
+            <div class="flex items-center justify-between text-xs mb-1.5">
+              <label for="pitchSlider" class="font-medium text-slate-300">Voice Pitch</label>
+              <span id="pitchValue" class="font-mono text-sky-400">1.00</span>
+            </div>
+            <input id="pitchSlider" type="range" min="0.5" max="1.6" step="0.05" value="1.0" class="w-full accent-sky-400 cursor-pointer" />
+            <div class="flex justify-between text-[11px] text-slate-500 mt-0.5">
+              <span>0.5 (Lower)</span>
+              <span>1.0</span>
+              <span>1.6 (Higher)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Live Transcript, Utterance Tester & Routing Notes (7 cols) -->
+      <section class="lg:col-span-7 space-y-5">
+        <!-- Live Call Transcript Card -->
+        <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-slate-800">
+            <div>
+              <h2 class="text-base font-semibold text-white">Live Call Transcript</h2>
+              <p class="text-xs text-slate-400">Real-time conversation feed with speaker tags and timestamps.</p>
+            </div>
+
+            <!-- Live Activity Indicator Pill -->
+            <div class="flex items-center gap-2.5">
+              <span id="activityBadge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-slate-800/90 text-slate-300 border border-slate-700">
+                <span id="activityDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                <span id="activityLabel">Standby</span>
+              </span>
+
+              <button id="clearTranscriptBtn" type="button" class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer">
+                Clear
+              </button>
+            </div>
+          </div>
+
+          <!-- Transcript Scroll Container -->
+          <div id="transcriptLog" class="mt-4 h-80 sm:h-96 overflow-y-auto space-y-3 pr-1">
+            <div class="text-center py-12 px-4 text-sm text-slate-500 border border-dashed border-slate-800 rounded-xl">
+              No active call transcript yet. Click <strong class="text-slate-300">Start Call</strong> to begin a simulated voice session.
+            </div>
+          </div>
+
+          <!-- Text Fallback & Caller Utterance Input -->
+          <form id="textUtteranceForm" class="mt-4 pt-3.5 border-t border-slate-800 flex flex-col sm:flex-row gap-2.5">
+            <input
+              id="textUtteranceInput"
+              type="text"
+              placeholder="Type a simulated caller message (works even without a microphone)..."
+              class="flex-1 rounded-xl bg-slate-950/90 border border-slate-700 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/20 text-sm text-slate-100 px-3.5 py-2.5 outline-none transition"
+            />
+            <button
+              id="sendUtteranceBtn"
+              type="submit"
+              class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-sky-500 hover:bg-sky-400 active:bg-sky-600 text-slate-950 transition shrink-0 cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+              <span>Send Caller Turn</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Permissions & Telephony Routing Architecture Notes -->
+        <div class="bg-panel border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg space-y-4">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <h2 class="text-sm font-semibold text-white">Browser Permissions &amp; Softphone / SIP / PSTN Routing Notes</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs leading-relaxed text-slate-300">
+            <div class="bg-slate-900/75 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+              <div class="font-semibold text-emerald-400">1. HTTPS / Localhost &amp; Mic Permissions</div>
+              <p class="text-slate-400">
+                Browsers require a secure context (<code class="text-slate-200 font-mono">https://</code> or <code class="text-slate-200 font-mono">http://localhost</code>) and explicit microphone permission for <code class="text-slate-200 font-mono">SpeechRecognition</code>. Embedded previews may restrict mic access—use the <strong class="text-slate-200">Send Caller Turn</strong> input box whenever testing in a sandboxed frame.
+              </p>
+            </div>
+
+            <div class="bg-slate-900/75 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+              <div class="font-semibold text-sky-400">2. Routing Audio to Softphone / SIP / PSTN</div>
+              <p class="text-slate-400">
+                Web Speech APIs run in the browser tab. To bridge a bot onto a real softphone, SIP trunk, or PSTN line, route virtual audio cables (e.g., VB-Cable or BlackHole) into your softphone—or connect a backend telephony bridge (Twilio Media Streams, SIP/WebRTC gateway, or Asterisk/FreeSWITCH) to streaming STT/LLM/TTS services.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * CallBot Console Application
+     * Implements a browser-based voice call simulator using Web Speech APIs
+     * (SpeechRecognition / webkitSpeechRecognition and speechSynthesis) with
+     * graceful fallback to typed caller turns when mic/STT is unavailable.
+     */
+    (function () {
+      'use strict';
+
+      // --- Script Templates ---
+      const SCRIPT_TEMPLATES = {
+        assistant: {
+          greeting: "Hello! This is Alex, your automated voice assistant. How can I help you on this call today?",
+          persona: "You are Alex, a helpful, concise voice call assistant. Answer questions clearly in 1-3 short sentences suited for spoken audio, ask helpful follow-up questions, and offer to connect with a specialist if needed."
+        },
+        appointment: {
+          greeting: "Hi there! This is Jordan calling from the scheduling desk to confirm your upcoming callback and appointment slot. Are you free for a quick confirmation?",
+          persona: "You are Jordan, a polite scheduling coordinator on a phone call. Help the caller confirm, reschedule, or cancel their appointment time, repeat dates/times clearly, and keep replies brief and natural for voice."
+        },
+        insurance: {
+          greeting: "Hello! This is Taylor following up on your recent insurance quote request. Do you have a couple of minutes to review your coverage options and deductible preferences?",
+          persona: "You are Taylor, a clear and helpful insurance follow-up specialist on a voice call. Explain coverage concepts simply without jargon, ask about budget or deductible priorities, and offer to schedule a licensed agent review."
+        }
+      };
+
+      // --- Application State ---
+      const state = {
+        callStatus: 'Idle', // 'Idle' | 'Ringing' | 'Connected' | 'Ended'
+        activity: 'Standby', // 'Standby' | 'Listening' | 'Bot Speaking' | 'Thinking'
+        isMuted: false,
+        secondsElapsed: 0,
+        timerInterval: null,
+        ringTimeout: null,
+        voices: [],
+        recognition: null,
+        recognitionActive: false,
+        shouldListen: false,
+        isSpeaking: false,
+        conversationHistory: [] // { role: 'bot' | 'user', text: string }
+      };
+
+      // --- DOM References ---
+      const dom = {
+        ringAnimation: document.getElementById('ringAnimation'),
+        callStateBadge: document.getElementById('callStateBadge'),
+        callStateDot: document.getElementById('callStateDot'),
+        callStateText: document.getElementById('callStateText'),
+        callTimer: document.getElementById('callTimer'),
+        startCallBtn: document.getElementById('startCallBtn'),
+        muteMicBtn: document.getElementById('muteMicBtn'),
+        muteMicLabel: document.getElementById('muteMicLabel'),
+        hangUpBtn: document.getElementById('hangUpBtn'),
+
+        ttsStatusDot: document.getElementById('ttsStatusDot'),
+        ttsSupportText: document.getElementById('ttsSupportText'),
+        sttStatusDot: document.getElementById('sttStatusDot'),
+        sttSupportText: document.getElementById('sttSupportText'),
+
+        greetingInput: document.getElementById('greetingInput'),
+        personaInput: document.getElementById('personaInput'),
+        voiceSelect: document.getElementById('voiceSelect'),
+        rateSlider: document.getElementById('rateSlider'),
+        rateValue: document.getElementById('rateValue'),
+        pitchSlider: document.getElementById('pitchSlider'),
+        pitchValue: document.getElementById('pitchValue'),
+        testVoiceBtn: document.getElementById('testVoiceBtn'),
+
+        activityBadge: document.getElementById('activityBadge'),
+        activityDot: document.getElementById('activityDot'),
+        activityLabel: document.getElementById('activityLabel'),
+        clearTranscriptBtn: document.getElementById('clearTranscriptBtn'),
+        transcriptLog: document.getElementById('transcriptLog'),
+        textUtteranceForm: document.getElementById('textUtteranceForm'),
+        textUtteranceInput: document.getElementById('textUtteranceInput'),
+        sendUtteranceBtn: document.getElementById('sendUtteranceBtn')
+      };
+
+      // --- Helper: Current Formatted Timestamp ---
+      function getTimestamp() {
+        const now = new Date();
+        return now.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+
+      // --- Helper: Format Call Duration (MM:SS) ---
+      function formatDuration(totalSeconds) {
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+
+      // --- Transcript Rendering ---
+      function appendTranscriptEntry(speaker, text) {
+        if (!text || !text.trim()) return;
+
+        // Remove empty placeholder if present
+        const emptyPlaceholder = dom.transcriptLog.querySelector('[data-placeholder="true"]');
+        if (!dom.transcriptLog.querySelector('[data-entry="true"]')) {
+          dom.transcriptLog.innerHTML = '';
+        }
+        if (emptyPlaceholder) emptyPlaceholder.remove();
+
+        const entry = document.createElement('div');
+        entry.setAttribute('data-entry', 'true');
+
+        let badgeClass = 'bg-slate-800 text-slate-300 border-slate-700';
+        let bubbleClass = 'bg-slate-900/80 border-slate-800 text-slate-200';
+        let label = speaker;
+
+        if (speaker === 'Bot') {
+          badgeClass = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
+          bubbleClass = 'bg-emerald-950/25 border-emerald-500/20 text-slate-100';
+        } else if (speaker === 'Caller') {
+          badgeClass = 'bg-sky-500/15 text-sky-300 border-sky-500/30';
+          bubbleClass = 'bg-sky-950/25 border-sky-500/20 text-slate-100';
+        } else if (speaker === 'System') {
+          badgeClass = 'bg-amber-500/15 text-amber-300 border-amber-500/30';
+          bubbleClass = 'bg-slate-900/60 border-slate-800/90 text-slate-400 italic';
+        }
+
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'flex items-center justify-between gap-2 mb-1';
+
+        const tagSpan = document.createElement('span');
+        tagSpan.className = `inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border ${badgeClass}`;
+        tagSpan.textContent = label;
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'font-mono text-[11px] text-slate-500';
+        timeSpan.textContent = getTimestamp();
+
+        headerDiv.appendChild(tagSpan);
+        headerDiv.appendChild(timeSpan);
+
+        const bodyDiv = document.createElement('div');
+        bodyDiv.className = 'text-sm leading-relaxed break-words';
+        bodyDiv.textContent = text.trim();
+
+        entry.className = `rounded-xl border p-3 ${bubbleClass}`;
+        entry.appendChild(headerDiv);
+        entry.appendChild(bodyDiv);
+
+        dom.transcriptLog.appendChild(entry);
+        dom.transcriptLog.scrollTop = dom.transcriptLog.scrollHeight;
+      }
+
+      function clearTranscript() {
+        dom.transcriptLog.innerHTML = `
+          <div data-placeholder="true" class="text-center py-12 px-4 text-sm text-slate-500 border border-dashed border-slate-800 rounded-xl">
+            Transcript cleared. Start a call or send a caller message to log new turns.
+          </div>
+        `;
+        state.conversationHistory = [];
+      }
+
+      // --- Activity Status Indicator ---
+      function setActivity(newActivity) {
+        state.activity = newActivity;
+        dom.activityLabel.textContent = newActivity;
+
+        dom.activityBadge.className = 'inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition';
+        dom.activityDot.className = 'w-2 h-2 rounded-full';
+
+        switch (newActivity) {
+          case 'Listening':
+            dom.activityBadge.classList.add('bg-sky-500/15', 'text-sky-300', 'border-sky-500/30');
+            dom.activityDot.classList.add('bg-sky-400', 'animate-pulse');
+            break;
+          case 'Bot Speaking':
+            dom.activityBadge.classList.add('bg-emerald-500/15', 'text-emerald-300', 'border-emerald-500/30');
+            dom.activityDot.classList.add('bg-emerald-400', 'animate-ping');
+            break;
+          case 'Thinking':
+            dom.activityBadge.classList.add('bg-violet-500/15', 'text-violet-300', 'border-violet-500/30');
+            dom.activityDot.classList.add('bg-violet-400', 'animate-pulse');
+            break;
+          default:
+            dom.activityBadge.classList.add('bg-slate-800/90', 'text-slate-300', 'border-slate-700');
+            dom.activityDot.classList.add('bg-slate-500');
+            break;
+        }
+      }
+
+      // --- Call State Machine ---
+      function setCallStatus(newStatus) {
+        state.callStatus = newStatus;
+        dom.callStateText.textContent = newStatus;
+
+        dom.callStateBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition';
+        dom.callStateDot.className = 'w-2 h-2 rounded-full';
+        dom.ringAnimation.classList.add('hidden');
+
+        if (newStatus === 'Idle') {
+          dom.callStateBadge.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700');
+          dom.callStateDot.classList.add('bg-slate-400');
+          dom.startCallBtn.disabled = false;
+          dom.muteMicBtn.disabled = true;
+          dom.hangUpBtn.disabled = true;
+        } else if (newStatus === 'Ringing') {
+          dom.callStateBadge.classList.add('bg-amber-500/15', 'text-amber-300', 'border-amber-500/30');
+          dom.callStateDot.classList.add('bg-amber-400', 'animate-ping');
+          dom.ringAnimation.classList.remove('hidden');
+          dom.startCallBtn.disabled = true;
+          dom.muteMicBtn.disabled = true;
+          dom.hangUpBtn.disabled = false;
+        } else if (newStatus === 'Connected') {
+          dom.callStateBadge.classList.add('bg-emerald-500/15', 'text-emerald-300', 'border-emerald-500/30');
+          dom.callStateDot.classList.add('bg-emerald-400');
+          dom.ringAnimation.classList.remove('hidden');
+          dom.startCallBtn.disabled = true;
+          dom.muteMicBtn.disabled = false;
+          dom.hangUpBtn.disabled = false;
+        } else if (newStatus === 'Ended') {
+          dom.callStateBadge.classList.add('bg-rose-500/15', 'text-rose-300', 'border-rose-500/30');
+          dom.callStateDot.classList.add('bg-rose-400');
+          dom.startCallBtn.disabled = false;
+          dom.muteMicBtn.disabled = true;
+          dom.hangUpBtn.disabled = true;
+        }
+      }
+
+      function startTimer() {
+        stopTimer();
+        state.secondsElapsed = 0;
+        dom.callTimer.textContent = formatDuration(0);
+        state.timerInterval = setInterval(() => {
+          state.secondsElapsed += 1;
+          dom.callTimer.textContent = formatDuration(state.secondsElapsed);
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (state.timerInterval) {
+          clearInterval(state.timerInterval);
+          state.timerInterval = null;
+        }
+      }
+
+      // --- Speech Synthesis (Bot Voice Output) ---
+      const synthSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+
+      function populateVoices() {
+        if (!synthSupported) {
+          dom.voiceSelect.innerHTML = '<option value="">speechSynthesis not supported</option>';
+          dom.ttsStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-rose-400';
+          dom.ttsSupportText.textContent = 'Unavailable';
+          return;
+        }
+
+        try {
+          const voices = window.speechSynthesis.getVoices() || [];
+          state.voices = voices;
+
+          dom.ttsStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
+          dom.ttsSupportText.textContent = `${voices.length} voice${voices.length === 1 ? '' : 's'} ready`;
+
+          if (!voices.length) {
+            dom.voiceSelect.innerHTML = '<option value="">Default System Voice</option>';
+            return;
+          }
+
+          const previousSelection = dom.voiceSelect.value;
+          dom.voiceSelect.innerHTML = '';
+
+          voices.forEach((voice, idx) => {
+            const option = document.createElement('option');
+            option.value = String(idx);
+            const langTag = voice.lang ? ` (${voice.lang})` : '';
+            const defaultTag = voice.default ? ' — Default' : '';
+            option.textContent = `${voice.name}${langTag}${defaultTag}`;
+            dom.voiceSelect.appendChild(option);
+          });
+
+          if (previousSelection && Number(previousSelection) < voices.length) {
+            dom.voiceSelect.value = previousSelection;
+          } else {
+            const englishIdx = voices.findIndex((v) => /en/i.test(v.lang));
+            if (englishIdx >= 0) dom.voiceSelect.value = String(englishIdx);
+          }
+        } catch (err) {
+          appendTranscriptEntry('System', `Unable to load speech voices: ${err.message}`);
+        }
+      }
+
+      function speakBotMessage(text, options = {}) {
+        const cleanText = (text || '').trim();
+        if (!cleanText) return;
+
+        const { logToTranscript = true, resumeListeningAfter = true } = options;
+
+        if (logToTranscript) {
+          appendTranscriptEntry('Bot', cleanText);
+          state.conversationHistory.push({ role: 'bot', text: cleanText });
+        }
+
+        if (!synthSupported) {
+          setActivity(state.callStatus === 'Connected' ? 'Listening' : 'Standby');
+          return;
+        }
+
+        try {
+          // Pause recognition while bot speaks to prevent self-echo loops
+          const wasListening = state.recognitionActive;
+          if (wasListening && state.recognition) {
+            state.shouldListen = false;
+            try { state.recognition.stop(); } catch (_) {}
+          }
+
+          window.speechSynthesis.cancel();
+
+          const utterance = new SpeechSynthesisUtterance(cleanText);
+          const selectedIdx = Number(dom.voiceSelect.value);
+          if (!Number.isNaN(selectedIdx) && state.voices[selectedIdx]) {
+            utterance.voice = state.voices[selectedIdx];
+          }
+          utterance.rate = parseFloat(dom.rateSlider.value) || 1.0;
+          utterance.pitch = parseFloat(dom.pitchSlider.value) || 1.0;
+
+          utterance.onstart = () => {
+            state.isSpeaking = true;
+            setActivity('Bot Speaking');
+          };
+
+          utterance.onend = () => {
+            state.isSpeaking = false;
+            if (state.callStatus === 'Connected' && resumeListeningAfter && !state.isMuted) {
+              startListening();
+            } else if (state.callStatus === 'Connected') {
+              setActivity('Standby');
+            } else {
+              setActivity('Standby');
+            }
+          };
+
+          utterance.onerror = (event) => {
+            state.isSpeaking = false;
+            if (event.error !== 'interrupted' && event.error !== 'canceled') {
+              appendTranscriptEntry('System', `TTS notice (${event.error}). Transcript still logged.`);
+            }
+            if (state.callStatus === 'Connected' && resumeListeningAfter && !state.isMuted) {
+              startListening();
+            } else {
+              setActivity('Standby');
+            }
+          };
+
+          setActivity('Bot Speaking');
+          window.speechSynthesis.speak(utterance);
+        } catch (err) {
+          state.isSpeaking = false;
+          appendTranscriptEntry('System', `Speech synthesis error: ${err.message}`);
+          setActivity(state.callStatus === 'Connected' ? 'Listening' : 'Standby');
+        }
+      }
+
+      // --- Speech Recognition (Caller Microphone Input) ---
+      const SpeechRecognitionCtor =
+        typeof window !== 'undefined'
+          ? window.SpeechRecognition || window.webkitSpeechRecognition || null
+          : null;
+
+      function initSpeechRecognition() {
+        if (!SpeechRecognitionCtor) {
+          dom.sttStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400';
+          dom.sttSupportText.textContent = 'Unavailable (use text fallback)';
+          return;
+        }
+
+        dom.sttStatusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400';
+        dom.sttSupportText.textContent = 'Supported';
+
+        try {
+          const rec = new SpeechRecognitionCtor();
+          rec.continuous = false;
+          rec.interimResults = false;
+          rec.lang = 'en-US';
+
+          rec.onstart = () => {
+            state.recognitionActive = true;
+            if (!state.isSpeaking && !state.isMuted && state.callStatus === 'Connected') {
+              setActivity('Listening');
+            }
+          };
+
+          rec.onresult = (event) => {
+            const transcript = event.results?.[0]?.[0]?.transcript || '';
+            if (transcript.trim()) {
+              handleCallerUtterance(transcript.trim());
+            }
+          };
+
+          rec.onerror = (event) => {
+            state.recognitionActive = false;
+            if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+              appendTranscriptEntry('System', 'Microphone permission denied or blocked in this context. You can still type caller turns below.');
+              state.shouldListen = false;
+              setActivity('Standby');
+            } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
+              appendTranscriptEntry('System', `Speech recognition status: ${event.error}`);
+            }
+          };
+
+          rec.onend = () => {
+            state.recognitionActive = false;
+            if (state.callStatus === 'Connected' && state.shouldListen && !state.isMuted && !state.isSpeaking) {
+              setTimeout(() => {
+                if (state.callStatus === 'Connected' && state.shouldListen && !state.isMuted && !state.isSpeaking) {
+                  startListening();
+                }
+              }, 250);
+            } else if (state.callStatus !== 'Connected') {
+              setActivity('Standby');
+            }
+          };
+
+          state.recognition = rec;
+        } catch (err) {
+          appendTranscriptEntry('System', `Could not initialize SpeechRecognition: ${err.message}`);
+        }
+      }
+
+      function startListening() {
+        if (!state.recognition || state.isMuted || state.callStatus !== 'Connected' || state.isSpeaking) {
+          return;
+        }
+        state.shouldListen = true;
+        if (state.recognitionActive) {
+          setActivity('Listening');
+          return;
+        }
+        try {
+          state.recognition.start();
+          setActivity('Listening');
+        } catch (_) {
+          // Recognition may already be starting
+        }
+      }
+
+      function stopListening() {
+        state.shouldListen = false;
+        if (state.recognition && state.recognitionActive) {
+          try {
+            state.recognition.stop();
+          } catch (_) {}
+        }
+        state.recognitionActive = false;
+      }
+
+      // --- Simulated Script / Persona Response Engine ---
+      function generateBotReply(callerText) {
+        const lower = callerText.toLowerCase();
+        const persona = (dom.personaInput.value || '').toLowerCase();
+
+        // Goodbye / Hang-up cues
+        if (/\b(bye|goodbye|hang up|that's all|no thanks|talk later)\b/.test(lower)) {
+          return "Thank you for speaking with me today. Have a great rest of your day, and feel free to call back anytime!";
+        }
+
+        // Human / Transfer cues
+        if (/\b(agent|human|representative|manager|supervisor|person|transfer)\b/.test(lower)) {
+          return "I understand you'd like to speak with a team member. I'm noting your request for a specialist transfer—could you share your name or best callback number first?";
+        }
+
+        // Context-aware responses tailored by persona keywords
+        if (persona.includes('appointment') || persona.includes('scheduling') || /\b(appointment|reschedule|schedule|time|tomorrow|confirm)\b/.test(lower)) {
+          if (/\b(reschedule|change|later|different time)\b/.test(lower)) {
+            return "No problem at all. Would you prefer a morning slot or an afternoon time later this week?";
+          }
+          if (/\b(yes|confirm|sounds good|works for me|sure)\b/.test(lower)) {
+            return "Great, your callback and appointment window is confirmed. Is there anything else I can update for you before we wrap up?";
+          }
+          return "I can help confirm or adjust your appointment time. What day and time works best for you?";
+        }
+
+        if (persona.includes('insurance') || /\b(quote|policy|coverage|deductible|premium|claim)\b/.test(lower)) {
+          if (/\b(deductible|lower|cheaper|price|cost|budget)\b/.test(lower)) {
+            return "Adjusting the deductible can help manage monthly costs while keeping core protection in place. Would you like a lower monthly payment or lower out-of-pocket costs?";
+          }
+          return "I'd be happy to review your quote options. Are you looking to focus on monthly cost, broader coverage, or a quick check-in with a licensed advisor?";
+        }
+
+        // General helpful conversational responses
+        if (/\b(hello|hi|hey|good morning|good afternoon|good evening)\b/.test(lower) && callerText.split(/\s+/).length <= 4) {
+          return "Hi there! Thanks for reaching out. What can I help you take care of today?";
+        }
+
+        if (/\b(help|assist|question|issue|problem)\b/.test(lower)) {
+          return "I'm ready to help. Tell me a bit more about what you need, and we'll take it step by step.";
+        }
+
+        if (/\b(thank you|thanks)\b/.test(lower)) {
+          return "You're very welcome! Let me know if there's anything else I can assist you with.";
+        }
+
+        return `Got it—you mentioned "${callerText}". Based on your call goals, how would you like to proceed next?`;
+      }
+
+      function handleCallerUtterance(text) {
+        const clean = (text || '').trim();
+        if (!clean) return;
+
+        // If user types a message while Idle or Ended, auto-connect into a simulated session so testing is effortless
+        if (state.callStatus === 'Idle' || state.callStatus === 'Ended') {
+          startCallImmediate();
+        }
+
+        appendTranscriptEntry('Caller', clean);
+        state.conversationHistory.push({ role: 'user', text: clean });
+
+        setActivity('Thinking');
+
+        const reply = generateBotReply(clean);
+        setTimeout(() => {
+          if (state.callStatus === 'Ended') return;
+          speakBotMessage(reply, { logToTranscript: true, resumeListeningAfter: true });
+        }, 450);
+      }
+
+      // --- Call Lifecycle Actions ---
+      function startCallImmediate() {
+        if (state.ringTimeout) {
+          clearTimeout(state.ringTimeout);
+          state.ringTimeout = null;
+        }
+        state.isMuted = false;
+        dom.muteMicLabel.textContent = 'Mute Mic';
+        setCallStatus('Connected');
+        startTimer();
+        appendTranscriptEntry('System', 'Call connected.');
+
+        const greeting = dom.greetingInput.value.trim() || SCRIPT_TEMPLATES.assistant.greeting;
+        speakBotMessage(greeting, { logToTranscript: true, resumeListeningAfter: true });
+      }
+
+      function handleStartCall() {
+        if (state.callStatus === 'Ringing' || state.callStatus === 'Connected') return;
+
+        setCallStatus('Ringing');
+        setActivity('Standby');
+        appendTranscriptEntry('System', 'Dialing / ringing simulated line...');
+
+        state.ringTimeout = setTimeout(() => {
+          if (state.callStatus === 'Ringing') {
+            startCallImmediate();
+          }
+        }, 1200);
+      }
+
+      function handleHangUp() {
+        if (state.ringTimeout) {
+          clearTimeout(state.ringTimeout);
+          state.ringTimeout = null;
+        }
+        stopListening();
+        stopTimer();
+
+        if (synthSupported) {
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+        }
+        state.isSpeaking = false;
+        state.isMuted = false;
+        dom.muteMicLabel.textContent = 'Mute Mic';
+
+        setCallStatus('Ended');
+        setActivity('Standby');
+        appendTranscriptEntry('System', `Call ended (duration ${formatDuration(state.secondsElapsed)}).`);
+      }
+
+      function handleToggleMute() {
+        if (state.callStatus !== 'Connected') return;
+
+        state.isMuted = !state.isMuted;
+        if (state.isMuted) {
+          dom.muteMicLabel.textContent = 'Unmute Mic';
+          stopListening();
+          setActivity('Standby');
+          appendTranscriptEntry('System', 'Microphone muted.');
+        } else {
+          dom.muteMicLabel.textContent = 'Mute Mic';
+          appendTranscriptEntry('System', 'Microphone unmuted.');
+          if (!state.isSpeaking) {
+            startListening();
+          }
+        }
+      }
+
+      // --- Event Listeners ---
+      dom.startCallBtn.addEventListener('click', handleStartCall);
+      dom.hangUpBtn.addEventListener('click', handleHangUp);
+      dom.muteMicBtn.addEventListener('click', handleToggleMute);
+      dom.clearTranscriptBtn.addEventListener('click', clearTranscript);
+
+      dom.rateSlider.addEventListener('input', () => {
+        dom.rateValue.textContent = `${Number(dom.rateSlider.value).toFixed(2)}x`;
+      });
+
+      dom.pitchSlider.addEventListener('input', () => {
+        dom.pitchValue.textContent = Number(dom.pitchSlider.value).toFixed(2);
+      });
+
+      dom.testVoiceBtn.addEventListener('click', () => {
+        const sample = dom.greetingInput.value.trim() || 'Hello! Testing voice synthesis rate and pitch.';
+        speakBotMessage(sample, {
+          logToTranscript: false,
+          resumeListeningAfter: state.callStatus === 'Connected' && !state.isMuted
+        });
+      });
+
+      document.querySelectorAll('.template-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.getAttribute('data-template');
+          const tpl = SCRIPT_TEMPLATES[key];
+          if (tpl) {
+            dom.greetingInput.value = tpl.greeting;
+            dom.personaInput.value = tpl.persona;
+            appendTranscriptEntry('System', `Applied "${btn.querySelector('div')?.textContent || key}" script template.`);
+          }
+        });
+      });
+
+      dom.textUtteranceForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = dom.textUtteranceInput.value.trim();
+        if (!text) return;
+        dom.textUtteranceInput.value = '';
+        handleCallerUtterance(text);
+      });
+
+      // --- Initialization ---
+      populateVoices();
+      if (synthSupported && typeof window.speechSynthesis.addEventListener === 'function') {
+        window.speechSynthesis.addEventListener('voiceschanged', populateVoices);
+      }
+      initSpeechRecognition();
+      setCallStatus('Idle');
+      setActivity('Standby');
+    })();
+  </script>
+</body>
+</html>
