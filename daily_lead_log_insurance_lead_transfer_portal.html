@@ -1,0 +1,2704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Lead Log — Insurance Lead Transfer CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            850: '#131c31',
+                            900: '#0f172a',
+                            950: '#090e1a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .material-symbols-outlined {
+            font-size: 18px;
+            line-height: 1;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.22s ease-out forwards;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-100 text-slate-900 antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+    <!-- ========================================================= -->
+    <!-- DARK NAVY SAAS HEADER & COMPREHENSIVE NAVIGATION BAR      -->
+    <!-- ========================================================= -->
+    <header class="sticky top-0 z-40 bg-navy-900 text-white border-b border-slate-800 shadow-lg">
+        <!-- Main Header Row -->
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-6">
+            <div class="flex justify-between items-center h-14">
+                <!-- Brand -->
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-indigo-950">
+                        <span class="material-symbols-outlined text-[20px]">verified_user</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-extrabold text-base sm:text-lg tracking-tight text-white">Daily Lead Log</span>
+                        <span class="hidden md:inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">dailyleadlog.com</span>
+                    </div>
+                </div>
+
+                <!-- Live Quick Telemetry Strip (Desktop) -->
+                <div class="hidden xl:flex items-center gap-4 text-xs bg-navy-950/70 px-3.5 py-1.5 rounded-full border border-slate-800">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-slate-400">Active Clients:</span>
+                        <span id="hdr-quick-active" class="font-bold text-emerald-400">3</span>
+                    </div>
+                    <span class="text-slate-700">|</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-amber-400 text-[15px]">timer</span>
+                        <span class="text-slate-400">Cool-Time:</span>
+                        <span id="hdr-quick-cool" class="font-bold text-amber-400">1</span>
+                    </div>
+                    <span class="text-slate-700">|</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-slate-400">Daily Cap:</span>
+                        <span id="hdr-quick-cap" class="font-bold text-indigo-300">11 / 28</span>
+                    </div>
+                </div>
+
+                <!-- Right Controls: Demo Reset & User Dropdown -->
+                <div class="flex items-center gap-2">
+                    <button onclick="resetDemoData()" title="Reset all demo data to defaults" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition-colors cursor-pointer">
+                        <span class="material-symbols-outlined text-[15px]">restart_alt</span>
+                        <span>Reset Demo</span>
+                    </button>
+
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-200 hover:bg-slate-800 border border-slate-700/80 transition-all cursor-pointer">
+                            <div class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[11px] font-bold">OP</div>
+                            <span class="hidden sm:inline font-semibold">Verifier Desk</span>
+                            <span class="material-symbols-outlined text-[16px] text-slate-400">keyboard_arrow_down</span>
+                        </button>
+                        <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-white text-slate-900 rounded-xl shadow-xl border border-slate-200 py-1.5 z-50">
+                            <div class="px-3.5 py-2 border-b border-slate-100">
+                                <p class="text-xs font-bold text-slate-900">Lead Verifier #104</p>
+                                <p class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Shift Active • TCPA Live
+                                </p>
+                            </div>
+                            <button onclick="resetDemoData(); toggleUserMenu();" class="w-full text-left px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-medium">
+                                <span class="material-symbols-outlined text-[16px] text-slate-500">restart_alt</span>
+                                <span>Reset Demo State</span>
+                            </button>
+                            <button onclick="handleLogout()" class="w-full text-left px-3.5 py-2 text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-semibold">
+                                <span class="material-symbols-outlined text-[16px]">logout</span>
+                                <span>Logout</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Navigation Bar (All 7 Operational Bars) -->
+        <div class="bg-navy-850 border-t border-slate-800/90">
+            <div class="max-w-[1440px] mx-auto px-3 sm:px-6">
+                <nav class="flex items-center gap-1 py-1.5 overflow-x-auto no-scrollbar" aria-label="Primary Operational Bars">
+                    <!-- 1. Dashboard -->
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-tab shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-[17px]">dashboard</span>
+                        <span>Dashboard</span>
+                    </button>
+
+                    <!-- 2. Transfer Lead -->
+                    <button onclick="switchTab('transfer')" id="nav-transfer" class="nav-tab shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow-sm transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-[17px]">send</span>
+                        <span>Transfer Lead</span>
+                    </button>
+
+                    <!-- 3. Clients Status -->
+                    <button onclick="switchTab('clients')" id="nav-clients" class="nav-tab shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-[17px]">groups</span>
+                        <span>Clients Status</span>
+                        <span id="badge-clients-status" class="ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">3 Act • 1 Cool • 1 Paused</span>
+                    </button>
+
+                    <!-- 4. Sent & Edit / Resend -->
+                    <button onclick="switchTab('sent')" id="nav-sent" class="nav-tab shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-[17px]">edit_note</span>
+                        <span>Sent & Edit / Resend</span>
+                        <span id="badge-sent-count" class="ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-200">4</span>
+                    </button>
+
+                    <!-- 5. Client Feedback -->
+                    <button onclick="switchTab('feedback')" id="nav-feedback" class="nav-tab shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-[17px]">forum</span>
+                        <span>Client Feedback</span>
+                        <span id="badge-feedback-count" class="ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">4</span>
+                    </button>
+
+                    <!-- 6. Pending Invoices -->
+                    <button onclick="switchTab('invoices')" id="nav-invoices" class="nav-tab shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-[17px]">receipt_long</span>
+                        <span>Pending Invoices</span>
+                        <span id="badge-invoices-summary" class="ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">3 • $425</span>
+                    </button>
+
+                    <!-- 7. Settings -->
+                    <button onclick="switchTab('settings')" id="nav-settings" class="nav-tab shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer">
+                        <span class="material-symbols-outlined text-[17px]">manage_accounts</span>
+                        <span>Settings</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========================================================= -->
+    <!-- MAIN WORKSPACE CONTAINER                                  -->
+    <!-- ========================================================= -->
+    <main class="flex-grow max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-6">
+
+        <!-- ========================================================= -->
+        <!-- TAB 1: DASHBOARD                                          -->
+        <!-- ========================================================= -->
+        <section id="view-dashboard" class="hidden animate-fade-in space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Operations Dashboard</h1>
+                    <p class="text-sm text-slate-500 mt-0.5">Live overview of client capacity, sent transfers, quality feedback, and billing.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="switchTab('clients')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px] text-emerald-600">groups</span>
+                        <span>Monitor Clients</span>
+                    </button>
+                    <button onclick="switchTab('transfer')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">send</span>
+                        <span>Transfer New Lead</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Top KPI Strip -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div onclick="switchTab('clients')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs hover:border-indigo-300 transition-all cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Clients Today</span>
+                        <span class="material-symbols-outlined text-emerald-600 bg-emerald-50 p-1.5 rounded-lg">groups</span>
+                    </div>
+                    <p id="dash-kpi-clients" class="text-2xl font-extrabold text-slate-900 mt-2">3 Active / 5 Total</p>
+                    <p id="dash-kpi-clients-sub" class="text-xs text-amber-600 font-medium mt-1">1 Cool-Time • 1 Paused</p>
+                </div>
+
+                <div onclick="switchTab('clients')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs hover:border-indigo-300 transition-all cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Daily Cap Filled</span>
+                        <span class="material-symbols-outlined text-indigo-600 bg-indigo-50 p-1.5 rounded-lg">speed</span>
+                    </div>
+                    <p id="dash-kpi-cap" class="text-2xl font-extrabold text-slate-900 mt-2">11 / 28</p>
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                        <div id="dash-kpi-cap-bar" class="bg-indigo-600 h-full rounded-full" style="width: 39%"></div>
+                    </div>
+                </div>
+
+                <div onclick="switchTab('sent')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs hover:border-indigo-300 transition-all cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Sent Forms Logged</span>
+                        <span class="material-symbols-outlined text-blue-600 bg-blue-50 p-1.5 rounded-lg">edit_note</span>
+                    </div>
+                    <p id="dash-kpi-sent" class="text-2xl font-extrabold text-slate-900 mt-2">4</p>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Click to edit or resend</p>
+                </div>
+
+                <div onclick="switchTab('feedback')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs hover:border-indigo-300 transition-all cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Client Comments</span>
+                        <span class="material-symbols-outlined text-teal-600 bg-teal-50 p-1.5 rounded-lg">forum</span>
+                    </div>
+                    <p id="dash-kpi-feedback" class="text-2xl font-extrabold text-slate-900 mt-2">4 Reviews</p>
+                    <p id="dash-kpi-disputes" class="text-xs text-rose-600 font-semibold mt-1">1 Disputed / Replacement</p>
+                </div>
+
+                <div onclick="switchTab('invoices')" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs hover:border-indigo-300 transition-all cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Pending Invoices</span>
+                        <span class="material-symbols-outlined text-amber-600 bg-amber-50 p-1.5 rounded-lg">receipt_long</span>
+                    </div>
+                    <p id="dash-kpi-invoices" class="text-2xl font-extrabold text-slate-900 mt-2">$425.00</p>
+                    <p id="dash-kpi-invoices-sub" class="text-xs text-amber-700 font-medium mt-1">3 unpaid invoices</p>
+                </div>
+            </div>
+
+            <!-- Two-Column Live Snapshot: Client Status Mini-Monitor + Recent Sent Leads -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+                    <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                        <h2 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <span class="material-symbols-outlined text-indigo-600">timer</span>
+                            Live Client Availability & Cool-Time
+                        </h2>
+                        <button onclick="switchTab('clients')" class="text-xs font-semibold text-indigo-600 hover:underline">Full View →</button>
+                    </div>
+                    <div id="dash-client-snapshot" class="divide-y divide-slate-100">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+                    <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                        <h2 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-600">history</span>
+                            Recent Sent Leads & Client Notes
+                        </h2>
+                        <button onclick="switchTab('sent')" class="text-xs font-semibold text-indigo-600 hover:underline">Edit / Resend →</button>
+                    </div>
+                    <div id="dash-recent-leads" class="divide-y divide-slate-100">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 2: TRANSFER LEAD (DEFAULT ACTIVE VIEW)                -->
+        <!-- ========================================================= -->
+        <section id="view-transfer" class="animate-fade-in space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Transfer Lead</h1>
+                    <p class="text-sm text-slate-500 mt-0.5">Verify prospect eligibility, check client cool-time & cap status, and transfer live.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 font-medium shadow-2xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        TCPA & DNC Scrubber Online
+                    </span>
+                </div>
+            </div>
+
+            <!-- Live Cool-Time / Paused Warning Banner (Shows dynamically if selected agent is NOT Active) -->
+            <div id="transfer-agent-alert-banner" class="hidden rounded-2xl p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <!-- Populated dynamically via JS -->
+            </div>
+
+            <!-- Top Grid: Agent Info (Left) + Lead Info & Auto/Home Info (Right) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+                <!-- CARD 1: AGENT INFO -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+                    <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-indigo-600 bg-indigo-100 p-1.5 rounded-lg">person_check</span>
+                            <h2 class="font-bold text-slate-900 text-base">Agent Info</h2>
+                        </div>
+                        <span id="agent-card-status-pill" class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Active • Accepting Calls
+                        </span>
+                    </div>
+
+                    <div class="p-5 space-y-4">
+                        <!-- Quick Agent Switcher -->
+                        <div>
+                            <label for="agent-info-selector" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Active Receiving Client</label>
+                            <select id="agent-info-selector" onchange="handleAgentChange(this.value)" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                <!-- Populated via JS -->
+                            </select>
+                        </div>
+
+                        <!-- Operational Telemetry Box: Cap, Cool-Time & Timings -->
+                        <div class="grid grid-cols-3 gap-2.5 p-3 rounded-xl bg-slate-900 text-white">
+                            <div>
+                                <span class="block text-[10px] uppercase tracking-wider text-slate-400">Daily Cap</span>
+                                <span id="agent-card-cap" class="text-sm font-extrabold text-indigo-300">2 / 6</span>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] uppercase tracking-wider text-slate-400">Cool-Time</span>
+                                <span id="agent-card-cool" class="text-sm font-extrabold text-emerald-400">Ready</span>
+                            </div>
+                            <div>
+                                <span class="block text-[10px] uppercase tracking-wider text-slate-400">Rate / Lead</span>
+                                <span id="agent-card-rate" class="text-sm font-extrabold text-white">$30</span>
+                            </div>
+                            <div class="col-span-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-300">
+                                <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-indigo-400">schedule</span> Active Window:</span>
+                                <span id="agent-card-timings" class="font-semibold text-white">09:00 AM - 06:00 PM CST</span>
+                            </div>
+                        </div>
+
+                        <!-- Full Name & States Row -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
+                                <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Full Name</span>
+                                <p id="agent-display-name" class="text-sm font-bold text-slate-900 mt-0.5">Anthony Aguilar</p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
+                                <span class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">States</span>
+                                <div id="agent-display-states" class="flex flex-wrap gap-1.5 mt-1">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">Texas</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Verifier Notes Callout -->
+                        <div>
+                            <span class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Verifier Notes</span>
+                            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950">
+                                <div class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-amber-600 text-[20px] shrink-0 mt-0.5">info</span>
+                                    <p id="agent-display-notes" class="text-sm font-semibold leading-relaxed">
+                                        Multi car Must with renter or homeowner / 12 month prior insurance / Age below 75
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Zip Codes -->
+                        <div>
+                            <span class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">Zip Codes</span>
+                            <div id="agent-display-zips" class="flex flex-wrap gap-1.5"></div>
+                        </div>
+
+                        <!-- DNC Persons -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-xs font-semibold uppercase tracking-wider text-rose-600 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[15px]">block</span>
+                                    DNC Persons
+                                </span>
+                                <span class="text-[11px] text-slate-400">Auto-checked</span>
+                            </div>
+                            <div id="agent-display-dnc" class="p-3 rounded-xl bg-rose-50/70 border border-rose-200 flex flex-wrap gap-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: CARD 2 (LEAD INFO) + CARD 3 (AUTO & HOME INFO) -->
+                <div class="lg:col-span-7 space-y-6">
+
+                    <!-- CARD 2: LEAD INFO -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+                        <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-blue-600 bg-blue-100 p-1.5 rounded-lg">badge</span>
+                                <h2 class="font-bold text-slate-900 text-base">Lead Info</h2>
+                            </div>
+                            <span class="text-xs font-medium text-slate-500">Step 1 of 2</span>
+                        </div>
+
+                        <div class="p-5 space-y-4">
+                            <!-- Phone Number + Live Scrubber Status -->
+                            <div>
+                                <label for="lead-phone" class="block text-xs font-semibold text-slate-700 mb-1.5">Phone Number <span class="text-rose-500">*</span></label>
+                                <div class="flex flex-col sm:flex-row gap-2.5">
+                                    <div class="relative flex-grow">
+                                        <input type="text" id="lead-phone" value="2106638148" oninput="checkPhoneStatus()" placeholder="e.g. 2106638148" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        <button type="button" onclick="checkPhoneStatus(true)" class="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer">
+                                            Lookup
+                                        </button>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                                        <span id="transfer-history-badge" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                            No transfer found.
+                                        </span>
+                                        <span id="tcpa-badge" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            TCPA: clean
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Full Name & Select Agent -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label for="lead-name" class="block text-xs font-semibold text-slate-700">Full Name <span class="text-rose-500">*</span></label>
+                                        <span id="dnc-name-alert" class="hidden text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">DNC MATCH!</span>
+                                    </div>
+                                    <input type="text" id="lead-name" value="Deborah Roberts" oninput="checkDncName()" placeholder="Enter prospect full name" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                </div>
+
+                                <div>
+                                    <label for="lead-agent-select" class="block text-xs font-semibold text-slate-700 mb-1.5">Select Agent</label>
+                                    <div class="flex gap-2">
+                                        <select id="lead-agent-select" onchange="handleAgentChange(this.value)" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"></select>
+                                        <button type="button" onclick="refreshAgentList()" title="Refresh Agent Queue" class="px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1 shrink-0 transition-colors cursor-pointer">
+                                            <span id="refresh-icon" class="material-symbols-outlined text-[16px]">refresh</span>
+                                            <span class="hidden sm:inline">Refresh</span>
+                                        </button>
+                                    </div>
+                                    <p id="agent-uuid-display" class="text-[11px] font-mono text-slate-400 mt-1 truncate">ad581e23-8ffe-4ec9-94fe-a7e1f4b2c24d</p>
+                                </div>
+                            </div>
+
+                            <!-- Date of Birth & Spouse -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label for="lead-dob" class="block text-xs font-semibold text-slate-700">Date Of Birth</label>
+                                        <span id="age-badge" class="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Age: 73 (Eligible)</span>
+                                    </div>
+                                    <input type="text" id="lead-dob" value="06/22/1953" oninput="calculateAge()" placeholder="Ex: 20 jan 2001 or 06/22/1953" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                </div>
+
+                                <div>
+                                    <label for="lead-spouse" class="block text-xs font-semibold text-slate-700 mb-1.5">Spouse</label>
+                                    <select id="lead-spouse" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        <option value="No" selected>No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Address & State -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="sm:col-span-2">
+                                    <label for="lead-address" class="block text-xs font-semibold text-slate-700 mb-1.5">Address <span class="text-rose-500">*</span></label>
+                                    <input type="text" id="lead-address" value="134 Galahad Dr San Antonio, TX" placeholder="Street, City, State, Zip" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                </div>
+
+                                <div>
+                                    <div class="flex items-center justify-between mb-1.5">
+                                        <label for="lead-state" class="block text-xs font-semibold text-slate-700">Select State</label>
+                                        <span id="state-match-badge" class="text-[11px] font-semibold text-emerald-600">State Match</span>
+                                    </div>
+                                    <select id="lead-state" onchange="validateStateMatch()" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        <option value="TX, Texas" selected>TX, Texas</option>
+                                        <option value="IN, Indiana">IN, Indiana</option>
+                                        <option value="MD, Maryland">MD, Maryland</option>
+                                        <option value="OK, Oklahoma">OK, Oklahoma</option>
+                                        <option value="FL, Florida">FL, Florida</option>
+                                        <option value="CA, California">CA, California</option>
+                                        <option value="OH, Ohio">OH, Ohio</option>
+                                        <option value="GA, Georgia">GA, Georgia</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: AUTO & HOME INFO -->
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+                        <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-teal-600 bg-teal-100 p-1.5 rounded-lg">directions_car</span>
+                                <h2 class="font-bold text-slate-900 text-base">Auto & Home Info</h2>
+                            </div>
+                            <span class="text-xs font-medium text-slate-500">Step 2 of 2</span>
+                        </div>
+
+                        <div class="p-5 space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="sm:col-span-2">
+                                    <label for="auto-carrier" class="block text-xs font-semibold text-slate-700 mb-1.5">Current Auto Carrier</label>
+                                    <input type="text" id="auto-carrier" value="State Farm - over a year" placeholder="e.g. State Farm - over a year" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                </div>
+                                <div>
+                                    <label for="auto-lapses" class="block text-xs font-semibold text-slate-700 mb-1.5">Any Lapses</label>
+                                    <select id="auto-lapses" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        <option value="No" selected>No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                                <div class="sm:col-span-2">
+                                    <label for="auto-vehicle" class="block text-xs font-semibold text-slate-700 mb-1.5">Make and Model</label>
+                                    <input type="text" id="auto-vehicle" value="2015 Chevy Equinox" placeholder="e.g. 2015 Chevy Equinox" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                </div>
+                                <div>
+                                    <label for="auto-accidents" class="block text-xs font-semibold text-slate-700 mb-1.5">Accidents</label>
+                                    <select id="auto-accidents" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        <option value="No" selected>No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="auto-tickets" class="block text-xs font-semibold text-slate-700 mb-1.5">Tickets</label>
+                                    <select id="auto-tickets" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        <option value="No" selected>No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-slate-100 my-1"></div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="home-owner" class="block text-xs font-semibold text-slate-700 mb-1.5">Home Owner</label>
+                                    <select id="home-owner" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        <option value="Yes" selected>Yes</option>
+                                        <option value="No">No (Renter)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="home-type" class="block text-xs font-semibold text-slate-700 mb-1.5">Home Type</label>
+                                    <select id="home-type" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        <option value="Single Family" selected>Single Family</option>
+                                        <option value="Condo">Condo</option>
+                                        <option value="Townhouse">Townhouse</option>
+                                        <option value="Renters">Renters</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="home-carrier" class="block text-xs font-semibold text-slate-700 mb-1.5">Current Home Carrier</label>
+                                    <input type="text" id="home-carrier" value="State Farm" placeholder="e.g. State Farm" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                </div>
+                                <div>
+                                    <label for="home-claims" class="block text-xs font-semibold text-slate-700 mb-1.5">Any Claim In Past 3 Years</label>
+                                    <select id="home-claims" class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                        <option value="No" selected>No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ACTION BAR -->
+                        <div class="px-5 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+                                <button type="button" onclick="submitLead('Transferred')" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all cursor-pointer">
+                                    <span class="material-symbols-outlined text-[17px]">send</span>
+                                    <span>Transfer Lead</span>
+                                </button>
+
+                                <button type="button" onclick="submitLead('Call Back')" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold shadow-sm transition-all cursor-pointer">
+                                    <span class="material-symbols-outlined text-[17px]">phone_callback</span>
+                                    <span>Call Back</span>
+                                </button>
+
+                                <button type="button" onclick="submitLead('Saved')" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold shadow-sm transition-all cursor-pointer">
+                                    <span class="material-symbols-outlined text-[17px]">save</span>
+                                    <span>Save Lead</span>
+                                </button>
+                            </div>
+
+                            <button type="button" onclick="resetLeadForm()" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-sm font-semibold transition-all cursor-pointer">
+                                <span class="material-symbols-outlined text-[17px]">restart_alt</span>
+                                <span>Reset Form</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 3: CLIENTS STATUS BAR / OPERATIONAL MONITOR           -->
+        <!-- ========================================================= -->
+        <section id="view-clients" class="hidden animate-fade-in space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Clients Status & Cool-Time Monitor</h1>
+                    <p class="text-sm text-slate-500 mt-0.5">Track active clients, paused caps, operating schedules, and mandatory 2-minute cool-down timers between transfers.</p>
+                </div>
+                <button onclick="switchTab('settings')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm self-start cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">person_add</span>
+                    <span>Configure Clients & Caps</span>
+                </button>
+            </div>
+
+            <!-- Summary Strip -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Clients Today</span>
+                    <p id="cs-total-clients" class="text-2xl font-extrabold text-slate-900 mt-1">5</p>
+                    <span class="text-xs text-slate-400">Configured accounts</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-emerald-200 bg-emerald-50/30 shadow-2xs">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">Active Now</span>
+                    <p id="cs-active-clients" class="text-2xl font-extrabold text-emerald-700 mt-1">3</p>
+                    <span class="text-xs text-emerald-600">Ready for live transfer</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-amber-200 bg-amber-50/30 shadow-2xs">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-700">On Cool-Time (2m)</span>
+                    <p id="cs-cool-clients" class="text-2xl font-extrabold text-amber-600 mt-1">1</p>
+                    <span class="text-xs text-amber-700">Buffer before 2nd lead</span>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-rose-200 bg-rose-50/30 shadow-2xs">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-rose-700">Paused / Cap Full</span>
+                    <p id="cs-paused-clients" class="text-2xl font-extrabold text-rose-600 mt-1">1</p>
+                    <span class="text-xs text-rose-600">Hold transfers</span>
+                </div>
+                <div class="col-span-2 sm:col-span-1 bg-white p-4 rounded-2xl border border-indigo-200 bg-indigo-50/30 shadow-2xs">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700">Total Daily Cap</span>
+                    <p id="cs-daily-cap" class="text-2xl font-extrabold text-indigo-700 mt-1">11 / 28</p>
+                    <div class="w-full bg-indigo-100 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                        <div id="cs-daily-cap-bar" class="bg-indigo-600 h-full rounded-full" style="width: 39%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Client Status Cards -->
+            <div id="clients-status-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                <!-- Populated dynamically via JS with live ticking countdowns -->
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 4: SENT LEADS — EDIT & RESEND                         -->
+        <!-- ========================================================= -->
+        <section id="view-sent" class="hidden animate-fade-in space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Sent Leads — Edit & Resend</h1>
+                    <p class="text-sm text-slate-500 mt-0.5">Edit any form already submitted to a client, or reassign & resend to another active client if sent to the wrong account.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <span class="material-symbols-outlined text-slate-400 text-[18px] absolute left-3 top-1/2 -translate-y-1/2">search</span>
+                        <input type="text" id="sent-search" oninput="renderSentLeadsTable()" placeholder="Search lead, phone, client..." class="pl-9 pr-4 py-2 rounded-xl border border-slate-300 bg-white text-xs font-medium focus:border-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                <th class="py-3.5 px-4">Lead & Timestamp</th>
+                                <th class="py-3.5 px-4">Phone & State</th>
+                                <th class="py-3.5 px-4">Sent To Client</th>
+                                <th class="py-3.5 px-4">Policy Summary</th>
+                                <th class="py-3.5 px-4">Status & Rate</th>
+                                <th class="py-3.5 px-4 text-right">Edit / Resend Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sent-leads-tbody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 5: CLIENT FEEDBACK & COMMENTS                         -->
+        <!-- ========================================================= -->
+        <section id="view-feedback" class="hidden animate-fade-in space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Client Feedback & Lead Comments</h1>
+                    <p class="text-sm text-slate-500 mt-0.5">Review client comments on sent leads, track bound policies, and resolve replacement requests.</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5">
+                    <button onclick="setFeedbackFilter('ALL')" id="fb-filter-ALL" class="fb-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white cursor-pointer">All Leads</button>
+                    <button onclick="setFeedbackFilter('Accepted / Bound')" id="fb-filter-Accepted / Bound" class="fb-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer">Accepted / Bound</button>
+                    <button onclick="setFeedbackFilter('Pending Review')" id="fb-filter-Pending Review" class="fb-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer">Pending Review</button>
+                    <button onclick="setFeedbackFilter('Disputed / Replacement')" id="fb-filter-Disputed / Replacement" class="fb-pill px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer">Disputed / Replacement</button>
+                </div>
+            </div>
+
+            <div id="feedback-cards-list" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 6: PENDING INVOICES                                   -->
+        <!-- ========================================================= -->
+        <section id="view-invoices" class="hidden animate-fade-in space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Pending Invoices & Billing</h1>
+                    <p class="text-sm text-slate-500 mt-0.5">Manage client invoices for transferred leads, generate new invoices from unbilled transfers, and mark payments received.</p>
+                </div>
+                <button onclick="openGenerateInvoiceModal()" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm self-start cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">add_card</span>
+                    <span>Generate Invoice from Unbilled Leads</span>
+                </button>
+            </div>
+
+            <!-- Financial KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Pending Amount</span>
+                    <p id="inv-kpi-pending" class="text-3xl font-extrabold text-amber-600 mt-1.5">$425.00</p>
+                    <p id="inv-kpi-pending-count" class="text-xs text-slate-500 mt-1">Across 3 open invoices</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Overdue Balance</span>
+                    <p id="inv-kpi-overdue" class="text-3xl font-extrabold text-rose-600 mt-1.5">$150.00</p>
+                    <p id="inv-kpi-overdue-count" class="text-xs text-rose-600 font-medium mt-1">Requires immediate reminder</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Paid This Week</span>
+                    <p id="inv-kpi-paid" class="text-3xl font-extrabold text-emerald-600 mt-1.5">$690.00</p>
+                    <p class="text-xs text-emerald-600 font-medium mt-1">Cleared via ACH / Stripe</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Unbilled Billable Leads</span>
+                    <p id="inv-kpi-unbilled" class="text-3xl font-extrabold text-indigo-600 mt-1.5">2 Leads ($60)</p>
+                    <p class="text-xs text-slate-500 mt-1">Ready to invoice</p>
+                </div>
+            </div>
+
+            <!-- Invoices Table -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                <th class="py-3.5 px-4">Invoice #</th>
+                                <th class="py-3.5 px-4">Client Name</th>
+                                <th class="py-3.5 px-4">Billing Period</th>
+                                <th class="py-3.5 px-4">Billable Leads</th>
+                                <th class="py-3.5 px-4">Total Amount</th>
+                                <th class="py-3.5 px-4">Due Date</th>
+                                <th class="py-3.5 px-4">Status</th>
+                                <th class="py-3.5 px-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoices-tbody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 7: SETTINGS (MANAGE CLIENTS, CAPS & RULES)            -->
+        <!-- ========================================================= -->
+        <section id="view-settings" class="hidden animate-fade-in space-y-6">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Client & Agent Configuration Settings</h1>
+                <p class="text-sm text-slate-500 mt-0.5">Configure client daily caps, cool-time minutes, active schedules, per-lead billing rates, verifier notes, and DNC lists.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Add / Edit Client Form -->
+                <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+                    <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                        <h2 id="settings-form-title" class="font-bold text-slate-900 text-base">Add New Client Account</h2>
+                        <button type="button" id="cancel-edit-btn" onclick="resetSettingsForm()" class="hidden text-xs font-semibold text-slate-500 hover:text-slate-800 cursor-pointer">Cancel Edit</button>
+                    </div>
+                    <form onsubmit="saveAgentSetting(event)" class="p-5 space-y-3.5">
+                        <input type="hidden" id="edit-agent-id" value="">
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Client Full Name <span class="text-rose-500">*</span></label>
+                                <input type="text" id="setting-agent-name" required placeholder="e.g. Anthony Aguilar" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">States (comma separated) <span class="text-rose-500">*</span></label>
+                                <input type="text" id="setting-agent-states" required placeholder="e.g. Texas, Oklahoma" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Daily Cap</label>
+                                <input type="number" id="setting-agent-cap" min="1" max="100" value="6" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Cool-Time (Min)</label>
+                                <input type="number" id="setting-agent-cool" min="1" max="60" value="2" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Rate ($/Lead)</label>
+                                <input type="number" id="setting-agent-rate" min="5" max="250" value="30" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Active Timings Window</label>
+                            <input type="text" id="setting-agent-timings" required value="09:00 AM - 06:00 PM CST" placeholder="e.g. 09:00 AM - 06:00 PM CST" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Verifier Notes <span class="text-rose-500">*</span></label>
+                            <textarea id="setting-agent-notes" rows="2" required placeholder="Multi car Must with renter or homeowner / 12 month prior insurance / Age below 75" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Zip Codes (comma separated)</label>
+                            <input type="text" id="setting-agent-zips" placeholder="e.g. 78201, 78209, 75001" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">DNC Persons (comma separated)</label>
+                            <input type="text" id="setting-agent-dnc" placeholder="e.g. David Tom, Lewis Glow, Benjamin Glow" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+                        </div>
+
+                        <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all cursor-pointer">
+                            Save Client Configuration
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Configured Clients List -->
+                <div class="lg:col-span-7 space-y-4" id="settings-agent-list">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+            <p>© copyright 2026 <span class="font-semibold text-slate-700">Daily Lead Log</span> - All rights reserved.</p>
+            <div class="flex items-center gap-3">
+                <span>dailyleadlog.com</span>
+                <span>•</span>
+                <span>TCPA Scrubber v4.2</span>
+                <span>•</span>
+                <span>2-Min Cool-Time Guard Active</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================================= -->
+    <!-- MODAL 1: LEAD TRANSFER SUMMARY & CLIPBOARD COPY           -->
+    <!-- ========================================================= -->
+    <div id="summary-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-fade-in">
+            <div class="px-5 py-4 bg-navy-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                    <h3 id="modal-title" class="font-bold text-sm sm:text-base">Lead Transfer Summary</h3>
+                </div>
+                <button onclick="closeModal('summary-modal')" class="text-slate-400 hover:text-white cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-5 space-y-4">
+                <p class="text-xs text-slate-500">Copy and paste this formatted summary directly into the client's handoff channel:</p>
+                <textarea id="modal-summary-text" readonly rows="13" class="w-full rounded-xl bg-slate-50 border border-slate-200 p-3.5 font-mono text-xs text-slate-800 focus:outline-none"></textarea>
+                <div class="flex items-center justify-end gap-2.5">
+                    <button onclick="closeModal('summary-modal')" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 cursor-pointer">Close</button>
+                    <button onclick="copyTextarea('modal-summary-text')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">content_copy</span>
+                        <span>Copy Summary</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL 2: EDIT SENT LEAD FORM                              -->
+    <!-- ========================================================= -->
+    <div id="edit-sent-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full border border-slate-200 shadow-2xl overflow-hidden animate-fade-in max-h-[92vh] flex flex-col">
+            <div class="px-5 py-4 bg-navy-900 text-white flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-indigo-400">edit_note</span>
+                    <h3 id="edit-sent-modal-title" class="font-bold text-base">Edit Sent Lead Form</h3>
+                </div>
+                <button onclick="closeModal('edit-sent-modal')" class="text-slate-400 hover:text-white cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form onsubmit="saveEditedSentLead(event)" class="p-5 space-y-4 overflow-y-auto">
+                <input type="hidden" id="edit-sent-id">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+                        <input type="text" id="es-name" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Phone Number</label>
+                        <input type="text" id="es-phone" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Date of Birth</label>
+                        <input type="text" id="es-dob" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">State</label>
+                        <input type="text" id="es-state" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Address</label>
+                        <input type="text" id="es-address" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Current Auto Carrier</label>
+                        <input type="text" id="es-auto-carrier" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Make & Model</label>
+                        <input type="text" id="es-vehicle" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Home Owner & Type</label>
+                        <div class="flex gap-2">
+                            <select id="es-home-owner" class="w-1/2 rounded-xl border border-slate-300 px-2.5 py-2 text-sm">
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                            <input type="text" id="es-home-type" class="w-1/2 rounded-xl border border-slate-300 px-2.5 py-2 text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Current Home Carrier</label>
+                        <input type="text" id="es-home-carrier" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('edit-sent-modal')" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 cursor-pointer">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer">Save Updated Form</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL 3: RESEND / REASSIGN TO ANOTHER CLIENT              -->
+    <!-- ========================================================= -->
+    <div id="resend-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-fade-in">
+            <div class="px-5 py-4 bg-navy-900 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-400">forward_to_inbox</span>
+                    <h3 class="font-bold text-base">Resend / Reassign Lead to Another Client</h3>
+                </div>
+                <button onclick="closeModal('resend-modal')" class="text-slate-400 hover:text-white cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form onsubmit="confirmResendLead(event)" class="p-5 space-y-4">
+                <input type="hidden" id="resend-lead-id">
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                    <p class="font-bold text-slate-900 text-sm" id="resend-lead-name">Lead Name</p>
+                    <p class="text-slate-600" id="resend-current-client">Currently assigned to: Anthony Aguilar</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Select New Receiving Client <span class="text-rose-500">*</span></label>
+                    <select id="resend-target-client" required class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-900 focus:border-indigo-500 focus:outline-none"></select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Reassignment Note (Optional)</label>
+                    <input type="text" id="resend-note" placeholder="e.g. Sent to wrong client initially, transferring warm call now" class="w-full rounded-xl border border-slate-300 px-3.5 py-2 text-sm">
+                </div>
+
+                <div class="flex items-center gap-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded-xl">
+                    <span class="material-symbols-outlined text-amber-600 text-[18px]">info</span>
+                    <span>This will adjust daily cap counters, trigger the 2-minute cool-time on the new client, and generate an updated handoff summary.</span>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('resend-modal')" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 cursor-pointer">Cancel</button>
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">send</span>
+                        <span>Confirm Reassign & Resend</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL 4: INVOICE DETAILS / GENERATE INVOICE               -->
+    <!-- ========================================================= -->
+    <div id="invoice-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden animate-fade-in">
+            <div class="px-5 py-4 bg-navy-900 text-white flex items-center justify-between">
+                <h3 id="invoice-modal-title" class="font-bold text-base">Invoice Details</h3>
+                <button onclick="closeModal('invoice-modal')" class="text-slate-400 hover:text-white cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="invoice-modal-body" class="p-5 space-y-4">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TOAST NOTIFICATIONS                                       -->
+    <!-- ========================================================= -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ========================================================= -->
+    <!-- APPLICATION STATE & INTERACTIVE JAVASCRIPT LOGIC          -->
+    <!-- ========================================================= -->
+    <script>
+        const STORAGE_KEY = 'daily_lead_log_portal_v2';
+
+        // Default Seed Data
+        function getDefaultState() {
+            const now = Date.now();
+            return {
+                selectedAgentId: 'ad581e23-8ffe-4ec9-94fe-a7e1f4b2c24d',
+                agents: [
+                    {
+                        id: 'ad581e23-8ffe-4ec9-94fe-a7e1f4b2c24d',
+                        name: 'Anthony Aguilar',
+                        states: ['Texas'],
+                        notes: 'Multi car Must with renter or homeowner / 12 month prior insurance / Age below 75',
+                        zips: ['All Approved TX Zips'],
+                        dnc: ['David Tom', 'Lewis Glow', 'Benjamin Glow'],
+                        status: 'Active', // Active | Cool Time | Paused
+                        dailyCap: 6,
+                        leadsSentToday: 3,
+                        coolDownMinutes: 2,
+                        coolDownEndTime: null,
+                        timings: '09:00 AM - 06:00 PM CST',
+                        inScheduleWindow: true,
+                        ratePerLead: 30
+                    },
+                    {
+                        id: 'b829c140-3d12-49a1-8c77-19f4e2a8b102',
+                        name: 'Tim Doud',
+                        states: ['Indiana'],
+                        notes: 'Homeowner preferred / Min 6 months continuous auto insurance / Max 1 minor violation in 3 yrs / Age 25-72',
+                        zips: ['46201', '46220', '46032', '47401'],
+                        dnc: ['Marcus Vance', 'Elena Rostova'],
+                        status: 'Cool Time',
+                        dailyCap: 5,
+                        leadsSentToday: 2,
+                        coolDownMinutes: 2,
+                        coolDownEndTime: now + 98 * 1000, // 01:38 ticking live on load
+                        timings: '09:00 AM - 05:30 PM EST',
+                        inScheduleWindow: true,
+                        ratePerLead: 28
+                    },
+                    {
+                        id: 'c412f988-7e55-4b10-9a31-88d2c7e1f509',
+                        name: 'Ryan Atchison',
+                        states: ['Texas', 'Oklahoma'],
+                        notes: 'Bundled Auto + Home or Renters ONLY / Clean driving record past 36 months / Active prior carrier required',
+                        zips: ['75001', '75201', '76102', '77002', '78701'],
+                        dnc: ['Gregory Shaw', 'Hannah Abbott', 'Peter Pettigrew'],
+                        status: 'Active',
+                        dailyCap: 7,
+                        leadsSentToday: 2,
+                        coolDownMinutes: 2,
+                        coolDownEndTime: null,
+                        timings: '08:30 AM - 06:30 PM CST',
+                        inScheduleWindow: true,
+                        ratePerLead: 35
+                    },
+                    {
+                        id: 'd903a771-1f84-4c62-b519-44a9e0c3d811',
+                        name: 'Brad Mercer',
+                        states: ['Texas'],
+                        notes: 'Single Family Homeowner Must / 2+ Vehicles / No lapses in past 12 months / Age under 75',
+                        zips: ['77001', '77494', '77380', '78209'],
+                        dnc: ['Victor Krum', 'Arthur Pendelton'],
+                        status: 'Paused',
+                        dailyCap: 4,
+                        leadsSentToday: 4,
+                        coolDownMinutes: 2,
+                        coolDownEndTime: null,
+                        timings: '10:00 AM - 05:00 PM CST (Cap Reached)',
+                        inScheduleWindow: true,
+                        ratePerLead: 30
+                    },
+                    {
+                        id: 'e519b302-9a14-4d71-c208-77b1d4e9a320',
+                        name: 'Sarah Jenkins',
+                        states: ['Maryland'],
+                        notes: 'Auto + Home bundle / Prior insurance 12+ months / No accidents or tickets in 3 years',
+                        zips: ['21201', '20814', '21044', '21401'],
+                        dnc: ['Claire Underwood'],
+                        status: 'Active',
+                        dailyCap: 6,
+                        leadsSentToday: 0,
+                        coolDownMinutes: 2,
+                        coolDownEndTime: null,
+                        timings: 'Starts at 10:00 AM EST (06:00 PM Close)',
+                        inScheduleWindow: true,
+                        ratePerLead: 32
+                    }
+                ],
+                leads: [
+                    {
+                        id: 'LD-1094',
+                        timestamp: 'Today, 02:14 PM',
+                        status: 'Transferred',
+                        phone: '3175550148',
+                        name: 'Kenneth Miller',
+                        agentId: 'b829c140-3d12-49a1-8c77-19f4e2a8b102',
+                        agentName: 'Tim Doud',
+                        dob: '09/03/1971',
+                        age: 55,
+                        address: '812 Meridian St, Indianapolis, IN',
+                        state: 'IN, Indiana',
+                        spouse: 'Yes',
+                        autoCarrier: 'Progressive - 2 years',
+                        lapses: 'No',
+                        vehicle: '2019 Toyota Camry & 2021 Honda Civic',
+                        accidents: 'No',
+                        tickets: 'No',
+                        homeOwner: 'Yes',
+                        homeType: 'Single Family',
+                        homeCarrier: 'Travelers',
+                        claims: 'No',
+                        rate: 28,
+                        billed: false,
+                        reassignHistory: '',
+                        feedbackStatus: 'Accepted / Bound',
+                        clientComments: [
+                            { author: 'Tim Doud (Client)', time: '12 mins ago', text: 'Great warm transfer! Quoted Auto + Home bundle and bound policy today. Send more like this.' }
+                        ]
+                    },
+                    {
+                        id: 'LD-1093',
+                        timestamp: 'Today, 01:05 PM',
+                        status: 'Transferred',
+                        phone: '2105550194',
+                        name: 'Margaret Holloway',
+                        agentId: 'ad581e23-8ffe-4ec9-94fe-a7e1f4b2c24d',
+                        agentName: 'Anthony Aguilar',
+                        dob: '04/14/1962',
+                        age: 64,
+                        address: '4820 Whispering Oaks, San Antonio, TX',
+                        state: 'TX, Texas',
+                        spouse: 'Yes',
+                        autoCarrier: 'Allstate - 3 years',
+                        lapses: 'No',
+                        vehicle: '2018 Honda CR-V & 2020 Ford F-150',
+                        accidents: 'No',
+                        tickets: 'No',
+                        homeOwner: 'Yes',
+                        homeType: 'Single Family',
+                        homeCarrier: 'Allstate',
+                        claims: 'No',
+                        rate: 30,
+                        billed: false,
+                        reassignHistory: '',
+                        feedbackStatus: 'Pending Review',
+                        clientComments: [
+                            { author: 'Anthony Aguilar (Client)', time: '38 mins ago', text: 'Spoke with Margaret, running MVR & CLUE report now. Will update disposition shortly.' }
+                        ]
+                    },
+                    {
+                        id: 'LD-1092',
+                        timestamp: 'Today, 11:30 AM',
+                        status: 'Transferred',
+                        phone: '7135550162',
+                        name: 'Gregory Mercer',
+                        agentId: 'c412f988-7e55-4b10-9a31-88d2c7e1f509',
+                        agentName: 'Ryan Atchison',
+                        dob: '02/11/1950',
+                        age: 76,
+                        address: '904 Westheimer Rd, Houston, TX',
+                        state: 'TX, Texas',
+                        spouse: 'No',
+                        autoCarrier: 'GEICO - 1 year',
+                        lapses: 'No',
+                        vehicle: '2016 Buick Enclave',
+                        accidents: 'No',
+                        tickets: 'No',
+                        homeOwner: 'Yes',
+                        homeType: 'Single Family',
+                        homeCarrier: 'State Farm',
+                        claims: 'No',
+                        rate: 35,
+                        billed: true,
+                        reassignHistory: 'Reassigned from Brad Mercer → Ryan Atchison',
+                        feedbackStatus: 'Disputed / Replacement',
+                        clientComments: [
+                            { author: 'Ryan Atchison (Client)', time: '1 hr ago', text: 'Driver license showed age 76 and single car only. Requesting credit / replacement lead.' }
+                        ]
+                    },
+                    {
+                        id: 'LD-1091',
+                        timestamp: 'Today, 10:15 AM',
+                        status: 'Transferred',
+                        phone: '5125550177',
+                        name: 'Patricia Morales',
+                        agentId: 'ad581e23-8ffe-4ec9-94fe-a7e1f4b2c24d',
+                        agentName: 'Anthony Aguilar',
+                        dob: '08/25/1968',
+                        age: 58,
+                        address: '310 Congress Ave, Austin, TX',
+                        state: 'TX, Texas',
+                        spouse: 'Yes',
+                        autoCarrier: 'Farmers - 4 years',
+                        lapses: 'No',
+                        vehicle: '2020 Toyota RAV4 & 2022 Chevy Silverado',
+                        accidents: 'No',
+                        tickets: 'No',
+                        homeOwner: 'Yes',
+                        homeType: 'Single Family',
+                        homeCarrier: 'Farmers',
+                        claims: 'No',
+                        rate: 30,
+                        billed: true,
+                        reassignHistory: '',
+                        feedbackStatus: 'Accepted / Bound',
+                        clientComments: [
+                            { author: 'Anthony Aguilar (Client)', time: '2 hrs ago', text: 'Clean bundle transfer, closed auto + home.' }
+                        ]
+                    }
+                ],
+                invoices: [
+                    {
+                        id: 'INV-2026-084',
+                        clientId: 'ad581e23-8ffe-4ec9-94fe-a7e1f4b2c24d',
+                        clientName: 'Anthony Aguilar',
+                        period: 'Nov 18 – Nov 25, 2026',
+                        leadCount: 5,
+                        rate: 30,
+                        total: 150,
+                        dueDate: 'Nov 28, 2026',
+                        status: 'Pending',
+                        items: ['LD-1091 (Patricia Morales) - $30', '4 prior verified TX transfers - $120']
+                    },
+                    {
+                        id: 'INV-2026-083',
+                        clientId: 'd903a771-1f84-4c62-b519-44a9e0c3d811',
+                        clientName: 'Brad Mercer',
+                        period: 'Nov 10 – Nov 17, 2026',
+                        leadCount: 5,
+                        rate: 30,
+                        total: 150,
+                        dueDate: 'Nov 22, 2026',
+                        status: 'Overdue',
+                        items: ['5 verified TX Home+Auto transfers - $150']
+                    },
+                    {
+                        id: 'INV-2026-082',
+                        clientId: 'c412f988-7e55-4b10-9a31-88d2c7e1f509',
+                        clientName: 'Ryan Atchison',
+                        period: 'Nov 18 – Nov 25, 2026',
+                        leadCount: 4,
+                        rate: 35,
+                        total: 125, // $140 - $15 credit adjustment
+                        dueDate: 'Nov 30, 2026',
+                        status: 'Pending',
+                        items: ['4 TX/OK transfers ($140) less $15 partial credit adjustment']
+                    },
+                    {
+                        id: 'INV-2026-081',
+                        clientId: 'b829c140-3d12-49a1-8c77-19f4e2a8b102',
+                        clientName: 'Tim Doud',
+                        period: 'Nov 10 – Nov 17, 2026',
+                        leadCount: 10,
+                        rate: 28,
+                        total: 280,
+                        dueDate: 'Nov 20, 2026',
+                        status: 'Paid',
+                        items: ['10 verified Indiana transfers - $280']
+                    }
+                ]
+            };
+        }
+
+        let state = loadState();
+        let currentFeedbackFilter = 'ALL';
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && Array.isArray(parsed.agents) && Array.isArray(parsed.leads)) {
+                        return parsed;
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not load saved state, using defaults.');
+            }
+            return getDefaultState();
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {
+                console.warn('Could not persist state.');
+            }
+        }
+
+        function resetDemoData() {
+            state = getDefaultState();
+            saveState();
+            refreshAllUI();
+            showToast('Demo data reset to fresh default state!', 'info');
+        }
+
+        // =========================================================
+        // 1. LIVE 1-SECOND COOL-TIME TICKER ENGINE
+        // =========================================================
+        setInterval(() => {
+            const now = Date.now();
+            let stateChanged = false;
+
+            state.agents.forEach(agent => {
+                if (agent.status === 'Cool Time' && agent.coolDownEndTime) {
+                    const remainingMs = agent.coolDownEndTime - now;
+                    if (remainingMs <= 0) {
+                        agent.coolDownEndTime = null;
+                        // Check if cap was reached while cooling down
+                        if (agent.leadsSentToday >= agent.dailyCap) {
+                            agent.status = 'Paused';
+                        } else {
+                            agent.status = 'Active';
+                        }
+                        stateChanged = true;
+                        showToast(`Cool-time complete! ${agent.name} is now ${agent.status}.`, 'success');
+                    }
+                }
+            });
+
+            if (stateChanged) {
+                saveState();
+                refreshAllUI();
+            } else {
+                // Lightweight timer update without full DOM rebuild
+                updateLiveTimersOnly();
+            }
+        }, 1000);
+
+        function formatRemainingSeconds(endTime) {
+            if (!endTime) return '00:00';
+            const diff = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+            const mins = Math.floor(diff / 60);
+            const secs = diff % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function updateLiveTimersOnly() {
+            state.agents.forEach(agent => {
+                if (agent.status === 'Cool Time' && agent.coolDownEndTime) {
+                    const timerStr = formatRemainingSeconds(agent.coolDownEndTime);
+                    const totalSecs = (agent.coolDownMinutes || 2) * 60;
+                    const remSecs = Math.max(0, Math.ceil((agent.coolDownEndTime - Date.now()) / 1000));
+                    const pct = Math.min(100, Math.max(0, ((totalSecs - remSecs) / totalSecs) * 100));
+
+                    const cardTimer = document.getElementById(`cool-timer-${agent.id}`);
+                    if (cardTimer) cardTimer.textContent = timerStr;
+
+                    const cardBar = document.getElementById(`cool-bar-${agent.id}`);
+                    if (cardBar) cardBar.style.width = `${pct}%`;
+
+                    const dashTimer = document.getElementById(`dash-cool-${agent.id}`);
+                    if (dashTimer) dashTimer.textContent = `Cool ${timerStr}`;
+
+                    if (agent.id === state.selectedAgentId) {
+                        const agentCardCool = document.getElementById('agent-card-cool');
+                        if (agentCardCool) agentCardCool.textContent = timerStr;
+
+                        const bannerTimer = document.getElementById('transfer-banner-timer');
+                        if (bannerTimer) bannerTimer.textContent = timerStr;
+                    }
+                }
+            });
+        }
+
+        // =========================================================
+        // 2. INITIALIZATION & GLOBAL REFRESH
+        // =========================================================
+        window.addEventListener('DOMContentLoaded', () => {
+            refreshAllUI();
+            calculateAge();
+            checkDncName();
+            checkPhoneStatus();
+            validateStateMatch();
+        });
+
+        function refreshAllUI() {
+            updateHeaderAndDashboardMetrics();
+            populateAgentSelectors();
+            renderAgentInfoCard();
+            renderClientsStatusGrid();
+            renderSentLeadsTable();
+            renderFeedbackCards();
+            renderInvoicesTable();
+            renderSettingsAgentsList();
+        }
+
+        function updateHeaderAndDashboardMetrics() {
+            const totalClients = state.agents.length;
+            const activeCount = state.agents.filter(a => a.status === 'Active').length;
+            const coolCount = state.agents.filter(a => a.status === 'Cool Time').length;
+            const pausedCount = state.agents.filter(a => a.status === 'Paused').length;
+
+            const totalSentToday = state.agents.reduce((sum, a) => sum + (a.leadsSentToday || 0), 0);
+            const totalCapToday = state.agents.reduce((sum, a) => sum + (a.dailyCap || 0), 0);
+            const capPct = totalCapToday > 0 ? Math.min(100, Math.round((totalSentToday / totalCapToday) * 100)) : 0;
+
+            const pendingInvoices = state.invoices.filter(i => i.status === 'Pending' || i.status === 'Overdue');
+            const pendingAmount = pendingInvoices.reduce((sum, i) => sum + i.total, 0);
+
+            const disputeCount = state.leads.filter(l => l.feedbackStatus === 'Disputed / Replacement').length;
+
+            // Header Telemetry & Badges
+            document.getElementById('hdr-quick-active').textContent = activeCount;
+            document.getElementById('hdr-quick-cool').textContent = coolCount;
+            document.getElementById('hdr-quick-cap').textContent = `${totalSentToday} / ${totalCapToday}`;
+
+            document.getElementById('badge-clients-status').textContent = `${activeCount} Act • ${coolCount} Cool • ${pausedCount} Paused`;
+            document.getElementById('badge-sent-count').textContent = state.leads.length;
+            document.getElementById('badge-feedback-count').textContent = state.leads.length;
+            document.getElementById('badge-invoices-summary').textContent = `${pendingInvoices.length} • $${pendingAmount}`;
+
+            // Dashboard KPIs
+            document.getElementById('dash-kpi-clients').textContent = `${activeCount} Active / ${totalClients} Total`;
+            document.getElementById('dash-kpi-clients-sub').textContent = `${coolCount} Cool-Time • ${pausedCount} Paused`;
+            document.getElementById('dash-kpi-cap').textContent = `${totalSentToday} / ${totalCapToday}`;
+            document.getElementById('dash-kpi-cap-bar').style.width = `${capPct}%`;
+            document.getElementById('dash-kpi-sent').textContent = state.leads.length;
+            document.getElementById('dash-kpi-feedback').textContent = `${state.leads.length} Leads`;
+            document.getElementById('dash-kpi-disputes').textContent = `${disputeCount} Disputed / Replacement`;
+            document.getElementById('dash-kpi-invoices').textContent = `$${pendingAmount.toFixed(2)}`;
+            document.getElementById('dash-kpi-invoices-sub').textContent = `${pendingInvoices.length} unpaid invoices`;
+
+            // Clients Status Strip
+            document.getElementById('cs-total-clients').textContent = totalClients;
+            document.getElementById('cs-active-clients').textContent = activeCount;
+            document.getElementById('cs-cool-clients').textContent = coolCount;
+            document.getElementById('cs-paused-clients').textContent = pausedCount;
+            document.getElementById('cs-daily-cap').textContent = `${totalSentToday} / ${totalCapToday}`;
+            document.getElementById('cs-daily-cap-bar').style.width = `${capPct}%`;
+
+            // Dashboard Mini Snapshot
+            const snapContainer = document.getElementById('dash-client-snapshot');
+            snapContainer.innerHTML = state.agents.map(a => {
+                let badge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Active</span>`;
+                if (a.status === 'Cool Time') {
+                    badge = `<span id="dash-cool-${a.id}" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200 font-mono">Cool ${formatRemainingSeconds(a.coolDownEndTime)}</span>`;
+                } else if (a.status === 'Paused') {
+                    badge = `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">Paused</span>`;
+                }
+                return `
+                    <div class="px-5 py-3 flex items-center justify-between text-xs">
+                        <div>
+                            <p class="font-bold text-slate-900">${escapeHtml(a.name)} <span class="text-slate-400 font-normal">(${escapeHtml(a.states.join(', '))})</span></p>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Cap: <strong>${a.leadsSentToday}/${a.dailyCap}</strong> • ${escapeHtml(a.timings)}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${badge}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const recentLeadsContainer = document.getElementById('dash-recent-leads');
+            recentLeadsContainer.innerHTML = state.leads.slice(0, 4).map(l => {
+                const lastComment = l.clientComments && l.clientComments.length ? l.clientComments[l.clientComments.length - 1].text : 'No client comment yet.';
+                return `
+                    <div class="px-5 py-3 flex items-start justify-between gap-3 text-xs">
+                        <div class="space-y-0.5">
+                            <p class="font-bold text-slate-900">${escapeHtml(l.name)} <span class="font-mono text-slate-500 font-normal">(${escapeHtml(l.phone)})</span> → <span class="text-indigo-600">${escapeHtml(l.agentName)}</span></p>
+                            <p class="text-slate-500 italic line-clamp-1">"${escapeHtml(lastComment)}"</p>
+                        </div>
+                        <button onclick="openEditSentModal('${l.id}')" class="shrink-0 px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-[11px] font-semibold text-slate-700 cursor-pointer">Edit</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // =========================================================
+        // 3. TAB NAVIGATION
+        // =========================================================
+        function switchTab(tabName) {
+            const tabs = ['dashboard', 'transfer', 'clients', 'sent', 'feedback', 'invoices', 'settings'];
+            tabs.forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`nav-${t}`);
+                btn.classList.remove('bg-indigo-600', 'text-white', 'font-semibold', 'shadow-sm');
+                btn.classList.add('text-slate-300', 'font-medium');
+            });
+
+            document.getElementById(`view-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'font-semibold', 'shadow-sm');
+            activeBtn.classList.remove('text-slate-300', 'font-medium');
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('user-dropdown').classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('user-dropdown');
+            if (dropdown && !e.target.closest('#user-dropdown') && !e.target.closest('button[onclick="toggleUserMenu()"]')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function handleLogout() {
+            document.getElementById('user-dropdown').classList.add('hidden');
+            showToast('Verifier session locked.', 'info');
+        }
+
+        // =========================================================
+        // 4. AGENT SYNC & TRANSFER VIEW LOGIC
+        // =========================================================
+        function populateAgentSelectors() {
+            const infoSelect = document.getElementById('agent-info-selector');
+            const leadSelect = document.getElementById('lead-agent-select');
+            if (!infoSelect || !leadSelect) return;
+
+            infoSelect.innerHTML = '';
+            leadSelect.innerHTML = '';
+
+            state.agents.forEach(agent => {
+                const statusTag = agent.status === 'Active' ? '🟢 Active' : (agent.status === 'Cool Time' ? '🟡 Cool-Time' : '🔴 Paused');
+                const label = `${agent.name}, ${agent.states.join('/')} [${statusTag} • ${agent.leadsSentToday}/${agent.dailyCap}]`;
+                infoSelect.add(new Option(label, agent.id));
+                leadSelect.add(new Option(label, agent.id));
+            });
+
+            if (!state.agents.some(a => a.id === state.selectedAgentId) && state.agents.length > 0) {
+                state.selectedAgentId = state.agents[0].id;
+            }
+            infoSelect.value = state.selectedAgentId;
+            leadSelect.value = state.selectedAgentId;
+        }
+
+        function handleAgentChange(agentId) {
+            state.selectedAgentId = agentId;
+            saveState();
+            document.getElementById('agent-info-selector').value = agentId;
+            document.getElementById('lead-agent-select').value = agentId;
+            renderAgentInfoCard();
+            checkDncName();
+            validateStateMatch();
+        }
+
+        function refreshAgentList() {
+            populateAgentSelectors();
+            renderAgentInfoCard();
+            showToast('Synced live agent caps, cool-down timers & DNC lists.', 'success');
+        }
+
+        function renderAgentInfoCard() {
+            const agent = state.agents.find(a => a.id === state.selectedAgentId) || state.agents[0];
+            if (!agent) return;
+
+            document.getElementById('agent-display-name').textContent = agent.name;
+            document.getElementById('agent-uuid-display').textContent = agent.id;
+            document.getElementById('agent-display-notes').textContent = agent.notes;
+            document.getElementById('agent-card-cap').textContent = `${agent.leadsSentToday} / ${agent.dailyCap}`;
+            document.getElementById('agent-card-rate').textContent = `$${agent.ratePerLead}`;
+            document.getElementById('agent-card-timings').textContent = agent.timings;
+
+            const statusPill = document.getElementById('agent-card-status-pill');
+            const coolLabel = document.getElementById('agent-card-cool');
+            const alertBanner = document.getElementById('transfer-agent-alert-banner');
+
+            if (agent.status === 'Active') {
+                statusPill.className = 'text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
+                statusPill.textContent = 'Active • Accepting Calls';
+                coolLabel.className = 'text-sm font-extrabold text-emerald-400';
+                coolLabel.textContent = 'Ready';
+                alertBanner.classList.add('hidden');
+            } else if (agent.status === 'Cool Time') {
+                const rem = formatRemainingSeconds(agent.coolDownEndTime);
+                statusPill.className = 'text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
+                statusPill.textContent = 'Cool-Time Buffer';
+                coolLabel.className = 'text-sm font-extrabold text-amber-400 font-mono';
+                coolLabel.textContent = rem;
+
+                alertBanner.className = 'rounded-2xl p-4 border bg-amber-50 border-amber-300 text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+                alertBanner.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-amber-600 text-[24px]">timer</span>
+                        <div>
+                            <p class="text-sm font-bold">Cool-Time Active for ${escapeHtml(agent.name)} — Wait <span id="transfer-banner-timer" class="font-mono underline">${rem}</span> before connecting 2nd lead!</p>
+                            <p class="text-xs text-amber-800">Mandatory ${agent.coolDownMinutes}-minute cool-down buffer after receiving a transfer.</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="overrideCoolDown('${agent.id}')" class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shrink-0 cursor-pointer">
+                        Override & Set Active
+                    </button>
+                `;
+                alertBanner.classList.remove('hidden');
+            } else {
+                statusPill.className = 'text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200';
+                statusPill.textContent = 'Paused';
+                coolLabel.className = 'text-sm font-extrabold text-rose-400';
+                coolLabel.textContent = 'Paused';
+
+                alertBanner.className = 'rounded-2xl p-4 border bg-rose-50 border-rose-300 text-rose-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3';
+                alertBanner.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-rose-600 text-[24px]">pause_circle</span>
+                        <div>
+                            <p class="text-sm font-bold">${escapeHtml(agent.name)} is currently PAUSED (${agent.leadsSentToday}/${agent.dailyCap} Daily Cap)</p>
+                            <p class="text-xs text-rose-800">Select another active client or resume this client in Clients Status before transferring.</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="toggleClientPause('${agent.id}')" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shrink-0 cursor-pointer">
+                        Resume Client Now
+                    </button>
+                `;
+                alertBanner.classList.remove('hidden');
+            }
+
+            // States
+            document.getElementById('agent-display-states').innerHTML = agent.states.map(st =>
+                `<span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">${escapeHtml(st)}</span>`
+            ).join('');
+
+            // Zips
+            const zipsContainer = document.getElementById('agent-display-zips');
+            zipsContainer.innerHTML = (agent.zips && agent.zips.length)
+                ? agent.zips.map(z => `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-medium bg-slate-100 text-slate-700 border border-slate-200">${escapeHtml(z)}</span>`).join('')
+                : `<span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">All Approved Zips</span>`;
+
+            // DNC
+            const dncContainer = document.getElementById('agent-display-dnc');
+            dncContainer.innerHTML = (agent.dnc && agent.dnc.length)
+                ? agent.dnc.map(person => `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white text-rose-700 border border-rose-200"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>${escapeHtml(person)}</span>`).join('')
+                : `<span class="text-xs text-slate-500">No restricted persons listed.</span>`;
+        }
+
+        // Validations
+        function checkPhoneStatus(manualClick = false) {
+            const raw = document.getElementById('lead-phone').value.replace(/\D/g, '');
+            const historyBadge = document.getElementById('transfer-history-badge');
+            const tcpaBadge = document.getElementById('tcpa-badge');
+
+            const existing = state.leads.find(l => l.phone.replace(/\D/g, '') === raw && raw.length >= 7);
+            if (existing) {
+                historyBadge.className = 'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200';
+                historyBadge.textContent = `Logged: ${existing.status} (${existing.agentName})`;
+            } else {
+                historyBadge.className = 'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200';
+                historyBadge.textContent = 'No transfer found.';
+            }
+
+            if (raw.endsWith('0000') && raw.length >= 7) {
+                tcpaBadge.className = 'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200';
+                tcpaBadge.textContent = 'TCPA: Litigator Alert';
+            } else {
+                tcpaBadge.className = 'inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
+                tcpaBadge.textContent = 'TCPA: clean';
+            }
+
+            if (manualClick) {
+                showToast(raw.length >= 10 ? 'Scrubber verified: TCPA Clean.' : 'Enter a valid 10-digit phone number.', raw.length >= 10 ? 'success' : 'warning');
+            }
+        }
+
+        function checkDncName() {
+            const nameVal = document.getElementById('lead-name').value.trim().toLowerCase();
+            const agent = state.agents.find(a => a.id === state.selectedAgentId);
+            const alertBadge = document.getElementById('dnc-name-alert');
+            const nameInput = document.getElementById('lead-name');
+
+            if (!agent || !nameVal) {
+                alertBadge.classList.add('hidden');
+                nameInput.classList.remove('border-rose-500', 'bg-rose-50/30');
+                return false;
+            }
+
+            const isDnc = agent.dnc.some(d => d.toLowerCase() === nameVal);
+            if (isDnc) {
+                alertBadge.classList.remove('hidden');
+                nameInput.classList.add('border-rose-500', 'bg-rose-50/30');
+                return true;
+            } else {
+                alertBadge.classList.add('hidden');
+                nameInput.classList.remove('border-rose-500', 'bg-rose-50/30');
+                return false;
+            }
+        }
+
+        function calculateAge() {
+            const dobStr = document.getElementById('lead-dob').value.trim();
+            const ageBadge = document.getElementById('age-badge');
+            if (!dobStr) {
+                ageBadge.textContent = 'Enter DOB';
+                return null;
+            }
+            const parsedDate = new Date(dobStr);
+            if (isNaN(parsedDate.getTime())) {
+                ageBadge.textContent = 'Check Format';
+                return null;
+            }
+            const today = new Date();
+            let age = today.getFullYear() - parsedDate.getFullYear();
+            const m = today.getMonth() - parsedDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < parsedDate.getDate())) age--;
+
+            if (age >= 75) {
+                ageBadge.textContent = `Age: ${age} (Over 75 Limit!)`;
+                ageBadge.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200';
+            } else {
+                ageBadge.textContent = `Age: ${age} (Eligible)`;
+                ageBadge.className = 'text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200';
+            }
+            return age;
+        }
+
+        function validateStateMatch() {
+            const selectedStateFull = document.getElementById('lead-state').value;
+            const agent = state.agents.find(a => a.id === state.selectedAgentId);
+            const badge = document.getElementById('state-match-badge');
+            if (!agent) return;
+
+            const matches = agent.states.some(st => selectedStateFull.toLowerCase().includes(st.toLowerCase()));
+            if (matches) {
+                badge.textContent = 'State Match ✓';
+                badge.className = 'text-[11px] font-semibold text-emerald-600';
+            } else {
+                badge.textContent = `Licensed: ${agent.states.join(', ')}`;
+                badge.className = 'text-[11px] font-semibold text-amber-600';
+            }
+        }
+
+        // Submit Lead -> Triggers 2-Min Cool-Time, Increments Cap, Logs to Sent, Feedback & Invoices
+        function submitLead(statusType) {
+            const phone = document.getElementById('lead-phone').value.trim();
+            const name = document.getElementById('lead-name').value.trim();
+            const address = document.getElementById('lead-address').value.trim();
+
+            if (!phone || !name) {
+                showToast('Please enter at least Phone Number and Full Name.', 'error');
+                return;
+            }
+
+            const agent = state.agents.find(a => a.id === state.selectedAgentId) || state.agents[0];
+
+            if (statusType === 'Transferred') {
+                if (checkDncName()) {
+                    showToast(`BLOCKED: "${name}" is on ${agent.name}'s DNC list!`, 'error');
+                    return;
+                }
+                if (agent.status === 'Paused') {
+                    showToast(`BLOCKED: ${agent.name} is PAUSED (${agent.leadsSentToday}/${agent.dailyCap} cap). Resume or pick another client.`, 'error');
+                    return;
+                }
+                if (agent.status === 'Cool Time') {
+                    const rem = formatRemainingSeconds(agent.coolDownEndTime);
+                    showToast(`WAIT: ${agent.name} is on 2-min Cool-Time (${rem} left). Override or pick another active client.`, 'warning');
+                    return;
+                }
+            }
+
+            const age = calculateAge();
+            const newLead = {
+                id: 'LD-' + (1095 + state.leads.length),
+                timestamp: 'Just now',
+                status: statusType,
+                phone,
+                name,
+                agentId: agent.id,
+                agentName: agent.name,
+                dob: document.getElementById('lead-dob').value.trim(),
+                age,
+                address,
+                state: document.getElementById('lead-state').value,
+                spouse: document.getElementById('lead-spouse').value,
+                autoCarrier: document.getElementById('auto-carrier').value.trim(),
+                lapses: document.getElementById('auto-lapses').value,
+                vehicle: document.getElementById('auto-vehicle').value.trim(),
+                accidents: document.getElementById('auto-accidents').value,
+                tickets: document.getElementById('auto-tickets').value,
+                homeOwner: document.getElementById('home-owner').value,
+                homeType: document.getElementById('home-type').value,
+                homeCarrier: document.getElementById('home-carrier').value.trim(),
+                claims: document.getElementById('home-claims').value,
+                rate: agent.ratePerLead,
+                billed: false,
+                reassignHistory: '',
+                feedbackStatus: 'Pending Review',
+                clientComments: []
+            };
+
+            state.leads.unshift(newLead);
+
+            if (statusType === 'Transferred') {
+                agent.leadsSentToday = (agent.leadsSentToday || 0) + 1;
+                // Trigger 2-minute Cool-Time
+                agent.status = 'Cool Time';
+                agent.coolDownEndTime = Date.now() + (agent.coolDownMinutes || 2) * 60 * 1000;
+            }
+
+            saveState();
+            refreshAllUI();
+
+            if (statusType === 'Transferred') {
+                showToast(`Transferred to ${agent.name}! 2-min Cool-Time started.`, 'success');
+                openSummaryModal(newLead);
+            } else if (statusType === 'Call Back') {
+                showToast(`Call Back logged for ${name}.`, 'warning');
+            } else {
+                showToast(`Lead saved to Sent / Drafts log.`, 'info');
+            }
+        }
+
+        function resetLeadForm() {
+            ['lead-phone', 'lead-name', 'lead-dob', 'lead-address', 'auto-carrier', 'auto-vehicle', 'home-carrier'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('lead-spouse').value = 'No';
+            document.getElementById('auto-lapses').value = 'No';
+            document.getElementById('auto-accidents').value = 'No';
+            document.getElementById('auto-tickets').value = 'No';
+            document.getElementById('home-owner').value = 'Yes';
+            document.getElementById('home-type').value = 'Single Family';
+            document.getElementById('home-claims').value = 'No';
+            calculateAge();
+            checkDncName();
+            checkPhoneStatus();
+            showToast('Form cleared for next call.', 'info');
+        }
+
+        // =========================================================
+        // 5. CLIENTS STATUS BAR / CARDS & COOL-TIME CONTROLS
+        // =========================================================
+        function renderClientsStatusGrid() {
+            const grid = document.getElementById('clients-status-grid');
+            if (!grid) return;
+
+            grid.innerHTML = state.agents.map(agent => {
+                const capPct = agent.dailyCap > 0 ? Math.min(100, Math.round((agent.leadsSentToday / agent.dailyCap) * 100)) : 0;
+                const isCool = agent.status === 'Cool Time';
+                const isPaused = agent.status === 'Paused';
+
+                let borderClass = 'border-slate-200';
+                let badgeHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>Active</span>`;
+
+                if (isCool) {
+                    borderClass = 'border-amber-300 ring-2 ring-amber-500/10';
+                    badgeHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300"><span class="material-symbols-outlined text-[14px]">timer</span>Cool-Time</span>`;
+                } else if (isPaused) {
+                    borderClass = 'border-rose-200 bg-rose-50/10';
+                    badgeHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200"><span class="material-symbols-outlined text-[14px]">pause_circle</span>Paused</span>`;
+                }
+
+                // Cool-time progress box
+                let coolBoxHtml = '';
+                if (isCool) {
+                    const rem = formatRemainingSeconds(agent.coolDownEndTime);
+                    coolBoxHtml = `
+                        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-amber-900 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[16px] text-amber-600">hourglass_top</span>
+                                    2-Min Cool-Time Buffer
+                                </span>
+                                <span id="cool-timer-${agent.id}" class="font-mono text-base font-extrabold text-amber-700">${rem}</span>
+                            </div>
+                            <div class="w-full bg-amber-200/70 h-2 rounded-full overflow-hidden">
+                                <div id="cool-bar-${agent.id}" class="bg-amber-500 h-full transition-all duration-500" style="width: 25%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-[11px] text-amber-800">
+                                <span>Wait before connecting 2nd lead</span>
+                                <button onclick="overrideCoolDown('${agent.id}')" class="font-bold underline hover:text-amber-950 cursor-pointer">Skip / Ready Now</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    coolBoxHtml = `
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+                            <span class="text-slate-600 font-medium">Cool-Time Rule (${agent.coolDownMinutes}m after lead)</span>
+                            <button onclick="triggerManualCoolDown('${agent.id}')" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:bg-amber-50 hover:border-amber-300 text-slate-700 font-semibold text-[11px] cursor-pointer">
+                                Trigger 2m Cool
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="bg-white rounded-2xl border ${borderClass} p-5 shadow-2xs flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <!-- Top Header -->
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <h3 class="font-bold text-slate-900 text-base">${escapeHtml(agent.name)}</h3>
+                                    <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(agent.states.join(', '))} • <span class="font-semibold text-slate-700">$${agent.ratePerLead}/lead</span></p>
+                                </div>
+                                ${badgeHtml}
+                            </div>
+
+                            <!-- Active Timings Window -->
+                            <div class="flex items-center gap-2 text-xs bg-indigo-50/70 text-indigo-900 px-3 py-2 rounded-xl border border-indigo-100">
+                                <span class="material-symbols-outlined text-[16px] text-indigo-600">schedule</span>
+                                <span class="font-semibold">${escapeHtml(agent.timings)}</span>
+                            </div>
+
+                            <!-- Daily Cap Tracker -->
+                            <div class="space-y-1.5">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-semibold text-slate-600">Daily Cap Today</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-extrabold text-slate-900">${agent.leadsSentToday} / ${agent.dailyCap} Leads</span>
+                                        <button onclick="adjustClientCap('${agent.id}', 1)" title="Increase Cap by 1" class="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center cursor-pointer">+</button>
+                                        <button onclick="adjustClientCap('${agent.id}', -1)" title="Decrease Cap by 1" class="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center cursor-pointer">-</button>
+                                    </div>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                    <div class="${capPct >= 100 ? 'bg-rose-500' : 'bg-indigo-600'} h-full rounded-full transition-all" style="width: ${capPct}%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Cool-Time Status Box -->
+                            ${coolBoxHtml}
+                        </div>
+
+                        <!-- Bottom Controls -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <button onclick="toggleClientPause('${agent.id}')" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border ${isPaused ? 'border-emerald-300 bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'} text-xs font-semibold cursor-pointer">
+                                <span class="material-symbols-outlined text-[16px]">${isPaused ? 'play_arrow' : 'pause'}</span>
+                                <span>${isPaused ? 'Resume Client' : 'Pause Client'}</span>
+                            </button>
+
+                            <button onclick="jumpToTransferForClient('${agent.id}')" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-2xs cursor-pointer">
+                                <span class="material-symbols-outlined text-[16px]">send</span>
+                                <span>Send Lead</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function triggerManualCoolDown(agentId) {
+            const agent = state.agents.find(a => a.id === agentId);
+            if (!agent) return;
+            agent.status = 'Cool Time';
+            agent.coolDownEndTime = Date.now() + (agent.coolDownMinutes || 2) * 60 * 1000;
+            saveState();
+            refreshAllUI();
+            showToast(`Started ${agent.coolDownMinutes}-minute Cool-Time for ${agent.name}.`, 'warning');
+        }
+
+        function overrideCoolDown(agentId) {
+            const agent = state.agents.find(a => a.id === agentId);
+            if (!agent) return;
+            agent.coolDownEndTime = null;
+            agent.status = agent.leadsSentToday >= agent.dailyCap ? 'Paused' : 'Active';
+            saveState();
+            refreshAllUI();
+            showToast(`${agent.name} Cool-Time cleared (${agent.status}).`, 'success');
+        }
+
+        function toggleClientPause(agentId) {
+            const agent = state.agents.find(a => a.id === agentId);
+            if (!agent) return;
+            if (agent.status === 'Paused') {
+                agent.status = 'Active';
+                agent.coolDownEndTime = null;
+                if (agent.leadsSentToday >= agent.dailyCap) {
+                    agent.dailyCap += 2; // Automatically bump cap if resuming a full cap client
+                }
+                showToast(`${agent.name} is now Active.`, 'success');
+            } else {
+                agent.status = 'Paused';
+                agent.coolDownEndTime = null;
+                showToast(`${agent.name} has been Paused.`, 'info');
+            }
+            saveState();
+            refreshAllUI();
+        }
+
+        function adjustClientCap(agentId, delta) {
+            const agent = state.agents.find(a => a.id === agentId);
+            if (!agent) return;
+            agent.dailyCap = Math.max(1, agent.dailyCap + delta);
+            if (agent.leadsSentToday < agent.dailyCap && agent.status === 'Paused') {
+                agent.status = 'Active';
+            } else if (agent.leadsSentToday >= agent.dailyCap && agent.status === 'Active') {
+                agent.status = 'Paused';
+            }
+            saveState();
+            refreshAllUI();
+        }
+
+        function jumpToTransferForClient(agentId) {
+            handleAgentChange(agentId);
+            switchTab('transfer');
+        }
+
+        // =========================================================
+        // 6. SENT LEADS — EDIT FORM & RESEND TO ANOTHER CLIENT
+        // =========================================================
+        function renderSentLeadsTable() {
+            const tbody = document.getElementById('sent-leads-tbody');
+            if (!tbody) return;
+            const q = (document.getElementById('sent-search')?.value || '').trim().toLowerCase();
+
+            const filtered = state.leads.filter(l =>
+                !q ||
+                l.name.toLowerCase().includes(q) ||
+                l.phone.includes(q) ||
+                l.agentName.toLowerCase().includes(q) ||
+                l.state.toLowerCase().includes(q)
+            );
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-slate-400 text-sm">No sent leads found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(l => {
+                const statusBadge = l.status === 'Transferred'
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : (l.status === 'Call Back' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-100 text-slate-700 border-slate-200');
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3.5 px-4">
+                            <p class="font-bold text-slate-900">${escapeHtml(l.name)}</p>
+                            <p class="text-xs text-slate-400">${escapeHtml(l.id)} • ${escapeHtml(l.timestamp)}</p>
+                            ${l.reassignHistory ? `<span class="inline-block mt-1 text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">${escapeHtml(l.reassignHistory)}</span>` : ''}
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <p class="font-mono text-xs font-bold text-slate-800">${escapeHtml(l.phone)}</p>
+                            <p class="text-xs text-slate-500">${escapeHtml(l.state)}</p>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                ${escapeHtml(l.agentName)}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-xs text-slate-600">
+                            <p class="font-semibold text-slate-800">${escapeHtml(l.autoCarrier || 'N/A')} • ${escapeHtml(l.vehicle || 'N/A')}</p>
+                            <p class="text-slate-400">Homeowner: ${escapeHtml(l.homeOwner)} (${escapeHtml(l.homeType)})</p>
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold border ${statusBadge}">${escapeHtml(l.status)}</span>
+                            <p class="text-xs font-semibold text-slate-500 mt-1">$${l.rate || 30} ${l.billed ? '• Billed' : '• Unbilled'}</p>
+                        </td>
+                        <td class="py-3.5 px-4 text-right">
+                            <div class="inline-flex flex-wrap justify-end gap-1.5">
+                                <button onclick="openEditSentModal('${l.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[15px]">edit</span>
+                                    <span>Edit Form</span>
+                                </button>
+                                <button onclick="openResendModal('${l.id}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-2xs cursor-pointer">
+                                    <span class="material-symbols-outlined text-[15px]">forward_to_inbox</span>
+                                    <span>Resend / Reassign</span>
+                                </button>
+                                <button onclick="viewLeadSummary('${l.id}')" title="Copy Summary" class="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[16px]">content_copy</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openEditSentModal(leadId) {
+            const lead = state.leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            document.getElementById('edit-sent-id').value = lead.id;
+            document.getElementById('edit-sent-modal-title').textContent = `Edit Sent Form — ${lead.name} (${lead.id})`;
+            document.getElementById('es-name').value = lead.name;
+            document.getElementById('es-phone').value = lead.phone;
+            document.getElementById('es-dob').value = lead.dob || '';
+            document.getElementById('es-state').value = lead.state || '';
+            document.getElementById('es-address').value = lead.address || '';
+            document.getElementById('es-auto-carrier').value = lead.autoCarrier || '';
+            document.getElementById('es-vehicle').value = lead.vehicle || '';
+            document.getElementById('es-home-owner').value = lead.homeOwner || 'Yes';
+            document.getElementById('es-home-type').value = lead.homeType || 'Single Family';
+            document.getElementById('es-home-carrier').value = lead.homeCarrier || '';
+
+            document.getElementById('edit-sent-modal').classList.remove('hidden');
+        }
+
+        function saveEditedSentLead(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-sent-id').value;
+            const lead = state.leads.find(l => l.id === id);
+            if (!lead) return;
+
+            lead.name = document.getElementById('es-name').value.trim();
+            lead.phone = document.getElementById('es-phone').value.trim();
+            lead.dob = document.getElementById('es-dob').value.trim();
+            lead.state = document.getElementById('es-state').value.trim();
+            lead.address = document.getElementById('es-address').value.trim();
+            lead.autoCarrier = document.getElementById('es-auto-carrier').value.trim();
+            lead.vehicle = document.getElementById('es-vehicle').value.trim();
+            lead.homeOwner = document.getElementById('es-home-owner').value;
+            lead.homeType = document.getElementById('es-home-type').value.trim();
+            lead.homeCarrier = document.getElementById('es-home-carrier').value.trim();
+
+            saveState();
+            refreshAllUI();
+            closeModal('edit-sent-modal');
+            showToast(`Updated form details for ${lead.name}.`, 'success');
+            openSummaryModal(lead);
+        }
+
+        function openResendModal(leadId) {
+            const lead = state.leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            document.getElementById('resend-lead-id').value = lead.id;
+            document.getElementById('resend-lead-name').textContent = `${lead.name} (${lead.phone}) • ${lead.state}`;
+            document.getElementById('resend-current-client').textContent = `Currently assigned to: ${lead.agentName}`;
+            document.getElementById('resend-note').value = '';
+
+            const targetSelect = document.getElementById('resend-target-client');
+            targetSelect.innerHTML = '';
+            state.agents.forEach(a => {
+                if (a.id !== lead.agentId) {
+                    const statusLabel = a.status === 'Active' ? 'Active' : `${a.status}`;
+                    targetSelect.add(new Option(`${a.name} (${a.states.join(', ')}) — ${statusLabel} [${a.leadsSentToday}/${a.dailyCap}]`, a.id));
+                }
+            });
+
+            document.getElementById('resend-modal').classList.remove('hidden');
+        }
+
+        function confirmResendLead(e) {
+            e.preventDefault();
+            const leadId = document.getElementById('resend-lead-id').value;
+            const newAgentId = document.getElementById('resend-target-client').value;
+            const note = document.getElementById('resend-note').value.trim();
+
+            const lead = state.leads.find(l => l.id === leadId);
+            const oldAgent = state.agents.find(a => a.id === lead?.agentId);
+            const newAgent = state.agents.find(a => a.id === newAgentId);
+
+            if (!lead || !newAgent) return;
+
+            // Decrement old agent cap if applicable
+            if (oldAgent && oldAgent.leadsSentToday > 0) {
+                oldAgent.leadsSentToday -= 1;
+            }
+
+            // Increment new agent cap & start 2-min cool-time
+            newAgent.leadsSentToday = (newAgent.leadsSentToday || 0) + 1;
+            newAgent.status = 'Cool Time';
+            newAgent.coolDownEndTime = Date.now() + (newAgent.coolDownMinutes || 2) * 60 * 1000;
+
+            const prevName = lead.agentName;
+            lead.agentId = newAgent.id;
+            lead.agentName = newAgent.name;
+            lead.rate = newAgent.ratePerLead;
+            lead.timestamp = 'Resent just now';
+            lead.reassignHistory = `Reassigned from ${prevName} → ${newAgent.name}${note ? ` (${note})` : ''}`;
+
+            saveState();
+            refreshAllUI();
+            closeModal('resend-modal');
+            showToast(`Lead reassigned & resent to ${newAgent.name}!`, 'success');
+            openSummaryModal(lead);
+        }
+
+        // =========================================================
+        // 7. CLIENT FEEDBACK & COMMENTS BAR
+        // =========================================================
+        function setFeedbackFilter(filter) {
+            currentFeedbackFilter = filter;
+            document.querySelectorAll('.fb-pill').forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'text-white');
+                btn.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-600');
+            });
+            const active = document.getElementById(`fb-filter-${filter}`);
+            if (active) {
+                active.classList.remove('bg-white', 'border', 'border-slate-200', 'text-slate-600');
+                active.classList.add('bg-slate-900', 'text-white');
+            }
+            renderFeedbackCards();
+        }
+
+        function renderFeedbackCards() {
+            const container = document.getElementById('feedback-cards-list');
+            if (!container) return;
+
+            const filtered = state.leads.filter(l =>
+                currentFeedbackFilter === 'ALL' || l.feedbackStatus === currentFeedbackFilter
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="col-span-full bg-white rounded-2xl border border-slate-200 p-10 text-center text-sm text-slate-400">No leads under this feedback filter.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(lead => {
+                let badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+                if (lead.feedbackStatus === 'Accepted / Bound') badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                if (lead.feedbackStatus === 'Disputed / Replacement') badgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+
+                const commentsHtml = (lead.clientComments && lead.clientComments.length)
+                    ? lead.clientComments.map(c => `
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-slate-800">${escapeHtml(c.author)}</span>
+                                <span class="text-[11px] text-slate-400">${escapeHtml(c.time)}</span>
+                            </div>
+                            <p class="text-slate-700 leading-relaxed">${escapeHtml(c.text)}</p>
+                        </div>
+                    `).join('')
+                    : `<p class="text-xs text-slate-400 italic py-2">No comments posted by client yet.</p>`;
+
+                return `
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex flex-wrap items-start justify-between gap-2">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="font-bold text-slate-900 text-base">${escapeHtml(lead.name)}</h3>
+                                        <span class="font-mono text-xs text-slate-500">${escapeHtml(lead.phone)}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 mt-0.5">Sent to <strong class="text-indigo-600">${escapeHtml(lead.agentName)}</strong> • ${escapeHtml(lead.state)} • ${escapeHtml(lead.timestamp)}</p>
+                                </div>
+
+                                <select onchange="updateFeedbackStatus('${lead.id}', this.value)" class="rounded-lg border px-2.5 py-1 text-xs font-bold ${badgeClass} focus:outline-none cursor-pointer">
+                                    <option value="Pending Review" ${lead.feedbackStatus === 'Pending Review' ? 'selected' : ''}>Pending Review</option>
+                                    <option value="Accepted / Bound" ${lead.feedbackStatus === 'Accepted / Bound' ? 'selected' : ''}>Accepted / Bound</option>
+                                    <option value="Disputed / Replacement" ${lead.feedbackStatus === 'Disputed / Replacement' ? 'selected' : ''}>Disputed / Replacement</option>
+                                </select>
+                            </div>
+
+                            <!-- Comments Thread -->
+                            <div class="space-y-2 max-h-44 overflow-y-auto pr-1">
+                                ${commentsHtml}
+                            </div>
+                        </div>
+
+                        <!-- Add Comment Box -->
+                        <div class="pt-3 border-t border-slate-100 flex gap-2">
+                            <input type="text" id="comment-input-${lead.id}" placeholder="Log client comment or verifier reply..." class="flex-grow rounded-xl border border-slate-300 px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none">
+                            <button onclick="addLeadComment('${lead.id}')" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shrink-0 cursor-pointer">
+                                Post
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateFeedbackStatus(leadId, newStatus) {
+            const lead = state.leads.find(l => l.id === leadId);
+            if (!lead) return;
+            lead.feedbackStatus = newStatus;
+            saveState();
+            refreshAllUI();
+            showToast(`Updated ${lead.name} status to "${newStatus}".`, 'info');
+        }
+
+        function addLeadComment(leadId) {
+            const input = document.getElementById(`comment-input-${leadId}`);
+            const text = input?.value.trim();
+            if (!text) return;
+
+            const lead = state.leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            if (!lead.clientComments) lead.clientComments = [];
+            lead.clientComments.push({
+                author: `${lead.agentName} / Desk Log`,
+                time: 'Just now',
+                text
+            });
+
+            input.value = '';
+            saveState();
+            refreshAllUI();
+            showToast('Client comment logged.', 'success');
+        }
+
+        // =========================================================
+        // 8. PENDING INVOICES BAR & BILLING WORKFLOWS
+        // =========================================================
+        function renderInvoicesTable() {
+            const tbody = document.getElementById('invoices-tbody');
+            if (!tbody) return;
+
+            const pendingInvs = state.invoices.filter(i => i.status === 'Pending' || i.status === 'Overdue');
+            const overdueInvs = state.invoices.filter(i => i.status === 'Overdue');
+            const paidInvs = state.invoices.filter(i => i.status === 'Paid');
+
+            const pendingTotal = pendingInvs.reduce((s, i) => s + i.total, 0);
+            const overdueTotal = overdueInvs.reduce((s, i) => s + i.total, 0);
+            const paidTotal = paidInvs.reduce((s, i) => s + i.total, 0);
+
+            const unbilledLeads = state.leads.filter(l => l.status === 'Transferred' && !l.billed && l.feedbackStatus !== 'Disputed / Replacement');
+            const unbilledTotal = unbilledLeads.reduce((s, l) => s + (l.rate || 30), 0);
+
+            document.getElementById('inv-kpi-pending').textContent = `$${pendingTotal.toFixed(2)}`;
+            document.getElementById('inv-kpi-pending-count').textContent = `Across ${pendingInvs.length} open invoices`;
+            document.getElementById('inv-kpi-overdue').textContent = `$${overdueTotal.toFixed(2)}`;
+            document.getElementById('inv-kpi-overdue-count').textContent = `${overdueInvs.length} overdue invoice(s)`;
+            document.getElementById('inv-kpi-paid').textContent = `$${paidTotal.toFixed(2)}`;
+            document.getElementById('inv-kpi-unbilled').textContent = `${unbilledLeads.length} Leads ($${unbilledTotal})`;
+
+            tbody.innerHTML = state.invoices.map(inv => {
+                let statusPill = 'bg-amber-50 text-amber-700 border-amber-200';
+                if (inv.status === 'Overdue') statusPill = 'bg-rose-50 text-rose-700 border-rose-200';
+                if (inv.status === 'Paid') statusPill = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3.5 px-4 font-mono text-xs font-bold text-slate-900">${escapeHtml(inv.id)}</td>
+                        <td class="py-3.5 px-4 font-bold text-slate-900">${escapeHtml(inv.clientName)}</td>
+                        <td class="py-3.5 px-4 text-xs text-slate-600">${escapeHtml(inv.period)}</td>
+                        <td class="py-3.5 px-4 text-xs font-semibold text-slate-800">${inv.leadCount} Leads @ $${inv.rate}</td>
+                        <td class="py-3.5 px-4 font-extrabold text-slate-900">$${inv.total.toFixed(2)}</td>
+                        <td class="py-3.5 px-4 text-xs text-slate-600">${escapeHtml(inv.dueDate)}</td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold border ${statusPill}">${escapeHtml(inv.status)}</span>
+                        </td>
+                        <td class="py-3.5 px-4 text-right space-x-1.5">
+                            <button onclick="viewInvoiceDetails('${inv.id}')" class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer">
+                                View / Copy
+                            </button>
+                            ${inv.status !== 'Paid' ? `
+                                <button onclick="markInvoicePaid('${inv.id}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold cursor-pointer">
+                                    Mark Paid
+                                </button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function markInvoicePaid(invId) {
+            const inv = state.invoices.find(i => i.id === invId);
+            if (!inv) return;
+            inv.status = 'Paid';
+            saveState();
+            refreshAllUI();
+            showToast(`Invoice ${inv.id} marked as PAID!`, 'success');
+        }
+
+        function viewInvoiceDetails(invId) {
+            const inv = state.invoices.find(i => i.id === invId);
+            if (!inv) return;
+
+            const summaryText = `INVOICE ${inv.id} — DAILY LEAD LOG (dailyleadlog.com)\nClient: ${inv.clientName}\nPeriod: ${inv.period}\nStatus: ${inv.status}\nDue Date: ${inv.dueDate}\n----------------------------------\n${inv.items.join('\n')}\n----------------------------------\nTOTAL DUE: $${inv.total.toFixed(2)}`;
+
+            document.getElementById('invoice-modal-title').textContent = `Invoice ${inv.id} — ${inv.clientName}`;
+            document.getElementById('invoice-modal-body').innerHTML = `
+                <textarea id="inv-copy-box" readonly rows="9" class="w-full rounded-xl bg-slate-50 border border-slate-200 p-3.5 font-mono text-xs text-slate-800">${escapeHtml(summaryText)}</textarea>
+                <div class="flex justify-end gap-2">
+                    <button onclick="closeModal('invoice-modal')" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 cursor-pointer">Close</button>
+                    <button onclick="copyTextarea('inv-copy-box')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer">Copy Invoice Reminder</button>
+                </div>
+            `;
+            document.getElementById('invoice-modal').classList.remove('hidden');
+        }
+
+        function openGenerateInvoiceModal() {
+            const unbilledLeads = state.leads.filter(l => l.status === 'Transferred' && !l.billed && l.feedbackStatus !== 'Disputed / Replacement');
+            if (unbilledLeads.length === 0) {
+                showToast('All eligible transferred leads have already been invoiced.', 'info');
+                return;
+            }
+
+            // Group unbilled leads by client
+            const byClient = {};
+            unbilledLeads.forEach(l => {
+                if (!byClient[l.agentId]) {
+                    byClient[l.agentId] = { agentId: l.agentId, agentName: l.agentName, leads: [], rate: l.rate || 30 };
+                }
+                byClient[l.agentId].leads.push(l);
+            });
+
+            const groups = Object.values(byClient);
+            document.getElementById('invoice-modal-title').textContent = 'Generate Invoices from Unbilled Transfers';
+            document.getElementById('invoice-modal-body').innerHTML = `
+                <p class="text-xs text-slate-600">The following clients have unbilled transferred leads ready to invoice:</p>
+                <div class="space-y-2.5">
+                    ${groups.map(g => {
+                        const total = g.leads.reduce((s, l) => s + (l.rate || g.rate), 0);
+                        return `
+                            <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+                                <div>
+                                    <p class="font-bold text-sm text-slate-900">${escapeHtml(g.agentName)}</p>
+                                    <p class="text-xs text-slate-500">${g.leads.length} unbilled lead(s): ${g.leads.map(x => x.name).join(', ')}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-extrabold text-indigo-700 text-base">$${total.toFixed(2)}</p>
+                                    <button onclick="createInvoiceForClient('${g.agentId}')" class="mt-1 px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer">
+                                        Create Invoice
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            document.getElementById('invoice-modal').classList.remove('hidden');
+        }
+
+        function createInvoiceForClient(agentId) {
+            const unbilled = state.leads.filter(l => l.agentId === agentId && l.status === 'Transferred' && !l.billed && l.feedbackStatus !== 'Disputed / Replacement');
+            if (unbilled.length === 0) return;
+
+            const agent = state.agents.find(a => a.id === agentId);
+            const rate = agent?.ratePerLead || 30;
+            const total = unbilled.reduce((s, l) => s + (l.rate || rate), 0);
+
+            unbilled.forEach(l => l.billed = true);
+
+            const newInv = {
+                id: 'INV-2026-' + (100 + state.invoices.length),
+                clientId: agentId,
+                clientName: agent ? agent.name : unbilled[0].agentName,
+                period: 'Nov 26, 2026 (Daily Batch)',
+                leadCount: unbilled.length,
+                rate,
+                total,
+                dueDate: 'Dec 03, 2026',
+                status: 'Pending',
+                items: unbilled.map(l => `${l.id} (${l.name} - ${l.phone}) - $${l.rate || rate}`)
+            };
+
+            state.invoices.unshift(newInv);
+            saveState();
+            refreshAllUI();
+            closeModal('invoice-modal');
+            showToast(`Generated ${newInv.id} ($${total.toFixed(2)}) for ${newInv.clientName}!`, 'success');
+        }
+
+        // =========================================================
+        // 9. SETTINGS (ADD / EDIT / DELETE CLIENTS)
+        // =========================================================
+        function renderSettingsAgentsList() {
+            const container = document.getElementById('settings-agent-list');
+            if (!container) return;
+
+            container.innerHTML = state.agents.map(agent => `
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div class="space-y-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 class="font-bold text-slate-900 text-base">${escapeHtml(agent.name)}</h3>
+                            ${agent.states.map(s => `<span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">${escapeHtml(s)}</span>`).join('')}
+                            <span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700">Cap: ${agent.dailyCap}/day</span>
+                            <span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-700">Cool: ${agent.coolDownMinutes}m</span>
+                            <span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700">$${agent.ratePerLead}/lead</span>
+                        </div>
+                        <p class="text-xs text-slate-500">Schedule: <strong>${escapeHtml(agent.timings)}</strong> • UUID: <span class="font-mono">${escapeHtml(agent.id)}</span></p>
+                        <p class="text-xs text-slate-800 bg-amber-50/80 border border-amber-200/80 rounded-xl px-3 py-2 font-medium">${escapeHtml(agent.notes)}</p>
+                        <div class="flex flex-wrap gap-4 text-xs text-slate-500">
+                            <span><strong>Zips:</strong> ${agent.zips.length ? escapeHtml(agent.zips.join(', ')) : 'All'}</span>
+                            <span><strong>DNC:</strong> ${agent.dnc.length ? escapeHtml(agent.dnc.join(', ')) : 'None'}</span>
+                        </div>
+                    </div>
+                    <div class="flex sm:flex-col gap-2 shrink-0">
+                        <button onclick="editAgentSetting('${agent.id}')" class="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer">Edit</button>
+                        ${state.agents.length > 1 ? `<button onclick="deleteAgentSetting('${agent.id}')" class="px-3 py-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-xs font-semibold text-rose-600 cursor-pointer">Remove</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveAgentSetting(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-agent-id').value;
+            const name = document.getElementById('setting-agent-name').value.trim();
+            const states = document.getElementById('setting-agent-states').value.split(',').map(s => s.trim()).filter(Boolean);
+            const dailyCap = parseInt(document.getElementById('setting-agent-cap').value, 10) || 6;
+            const coolDownMinutes = parseInt(document.getElementById('setting-agent-cool').value, 10) || 2;
+            const ratePerLead = parseInt(document.getElementById('setting-agent-rate').value, 10) || 30;
+            const timings = document.getElementById('setting-agent-timings').value.trim();
+            const notes = document.getElementById('setting-agent-notes').value.trim();
+            const zips = document.getElementById('setting-agent-zips').value.split(',').map(z => z.trim()).filter(Boolean);
+            const dnc = document.getElementById('setting-agent-dnc').value.split(',').map(d => d.trim()).filter(Boolean);
+
+            if (editId) {
+                const idx = state.agents.findIndex(a => a.id === editId);
+                if (idx !== -1) {
+                    state.agents[idx] = { ...state.agents[idx], name, states, dailyCap, coolDownMinutes, ratePerLead, timings, notes, zips, dnc };
+                    showToast(`Updated client: ${name}`, 'success');
+                }
+            } else {
+                const newAgent = {
+                    id: crypto.randomUUID ? crypto.randomUUID() : 'ag-' + Date.now(),
+                    name,
+                    states,
+                    notes,
+                    zips,
+                    dnc,
+                    status: 'Active',
+                    dailyCap,
+                    leadsSentToday: 0,
+                    coolDownMinutes,
+                    coolDownEndTime: null,
+                    timings,
+                    inScheduleWindow: true,
+                    ratePerLead
+                };
+                state.agents.push(newAgent);
+                state.selectedAgentId = newAgent.id;
+                showToast(`Added new client: ${name}`, 'success');
+            }
+
+            saveState();
+            resetSettingsForm();
+            refreshAllUI();
+        }
+
+        function editAgentSetting(id) {
+            const agent = state.agents.find(a => a.id === id);
+            if (!agent) return;
+            document.getElementById('settings-form-title').textContent = `Edit Client: ${agent.name}`;
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            document.getElementById('edit-agent-id').value = agent.id;
+            document.getElementById('setting-agent-name').value = agent.name;
+            document.getElementById('setting-agent-states').value = agent.states.join(', ');
+            document.getElementById('setting-agent-cap').value = agent.dailyCap;
+            document.getElementById('setting-agent-cool').value = agent.coolDownMinutes;
+            document.getElementById('setting-agent-rate').value = agent.ratePerLead;
+            document.getElementById('setting-agent-timings').value = agent.timings;
+            document.getElementById('setting-agent-notes').value = agent.notes;
+            document.getElementById('setting-agent-zips').value = agent.zips.join(', ');
+            document.getElementById('setting-agent-dnc').value = agent.dnc.join(', ');
+        }
+
+        function deleteAgentSetting(id) {
+            state.agents = state.agents.filter(a => a.id !== id);
+            if (state.selectedAgentId === id && state.agents.length > 0) {
+                state.selectedAgentId = state.agents[0].id;
+            }
+            saveState();
+            refreshAllUI();
+            showToast('Client removed.', 'info');
+        }
+
+        function resetSettingsForm() {
+            document.getElementById('settings-form-title').textContent = 'Add New Client Account';
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+            document.getElementById('edit-agent-id').value = '';
+            document.getElementById('setting-agent-name').value = '';
+            document.getElementById('setting-agent-states').value = '';
+            document.getElementById('setting-agent-cap').value = 6;
+            document.getElementById('setting-agent-cool').value = 2;
+            document.getElementById('setting-agent-rate').value = 30;
+            document.getElementById('setting-agent-timings').value = '09:00 AM - 06:00 PM CST';
+            document.getElementById('setting-agent-notes').value = '';
+            document.getElementById('setting-agent-zips').value = '';
+            document.getElementById('setting-agent-dnc').value = '';
+        }
+
+        // =========================================================
+        // 10. MODALS, CLIPBOARD & TOAST HELPERS
+        // =========================================================
+        function formatLeadSummary(lead) {
+            return `=== DAILY LEAD LOG TRANSFER SUMMARY (dailyleadlog.com) ===
+Status: ${lead.status.toUpperCase()} | ID: ${lead.id}
+Receiving Client: ${lead.agentName}${lead.reassignHistory ? `\nNote: ${lead.reassignHistory}` : ''}
+----------------------------------------
+LEAD INFO
+Name: ${lead.name}
+Phone: ${lead.phone} (TCPA: Clean)
+DOB: ${lead.dob || 'N/A'}${lead.age ? ` (Age: ${lead.age})` : ''}
+Address: ${lead.address || 'N/A'}
+State: ${lead.state}
+Spouse: ${lead.spouse}
+----------------------------------------
+AUTO & HOME INFO
+Current Auto Carrier: ${lead.autoCarrier || 'None'}
+Any Lapses: ${lead.lapses}
+Make & Model: ${lead.vehicle || 'N/A'}
+Accidents / Tickets: ${lead.accidents} / ${lead.tickets}
+Home Owner: ${lead.homeOwner} (${lead.homeType})
+Current Home Carrier: ${lead.homeCarrier || 'None'}
+Claims (Past 3 Yrs): ${lead.claims}
+========================================`;
+        }
+
+        function openSummaryModal(lead) {
+            document.getElementById('modal-title').textContent = `${lead.status} Summary — ${lead.name}`;
+            document.getElementById('modal-summary-text').value = formatLeadSummary(lead);
+            document.getElementById('summary-modal').classList.remove('hidden');
+        }
+
+        function viewLeadSummary(leadId) {
+            const lead = state.leads.find(l => l.id === leadId);
+            if (lead) openSummaryModal(lead);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function copyTextarea(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.select();
+            el.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                showToast('Copied to clipboard!', 'success');
+            } catch (e) {
+                showToast('Press Ctrl+C to copy.', 'warning');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-navy-900 text-white border-emerald-500',
+                error: 'bg-rose-600 text-white border-rose-900',
+                warning: 'bg-amber-500 text-white border-amber-800',
+                info: 'bg-slate-800 text-white border-indigo-500'
+            };
+            toast.className = `pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl border-l-4 text-xs font-semibold animate-fade-in ${colors[type] || colors.info}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.25s ease';
+                setTimeout(() => toast.remove(), 250);
+            }, 3400);
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
